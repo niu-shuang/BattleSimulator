@@ -14,25 +14,54 @@ public abstract class SkillBase
     /// </summary>
     public CharacterLogic caster { get; private set; }
 
-    public int coolDown { get; private set; }
+    public string description { get; protected set; }
+
+    public int cost { get; private set; }
     private int castTurn;
 
-    public bool canCast => castTurn == -1 || (castTurn != -1 && GameManager.Instance.turn - castTurn >= coolDown);
+    private SkillCardView view;
+    public bool casted { get; private set; }
 
-    public SkillBase(int id, string skillName, int coolDown, bool selectable, CharacterLogic caster)
+    public bool canCast => GameManager.Instance.mana[(int)caster.team].Value - cost >= 0;
+
+    public SkillBase(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description)
     {
         this.id = id;
         this.skillName = skillName;
         this.selectable = selectable;
         this.caster = caster;
-        this.coolDown = coolDown;
+        this.cost = cost;
+        this.description = description;
+        this.casted = false;
         castTurn = -1;
     }
 
-    public virtual void Cast(Vector2Int targetPos)
+    public virtual void Cast(Vector2Int targetPos, Team team)
     {
         castTurn = GameManager.Instance.turn;
+        GameManager.Instance.mana[(int)caster.team].Value -= cost;
+        casted = true;
+    }
+
+    public void ResetCastFlag()
+    {
+        casted = false;
+    }
+
+    public void SetView(SkillCardView view)
+    {
+        this.view = view;
+    }
+
+    public void ClearView()
+    {
+        view?.SetEmpty();
     }
 
     public abstract void LoadCustomProperty(ISheet sheet);
+
+    public SkillBase Clone()
+    {
+        return this.MemberwiseClone() as SkillBase;
+    }
 }

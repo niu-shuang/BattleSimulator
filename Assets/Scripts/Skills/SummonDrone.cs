@@ -13,14 +13,14 @@ public class SummonDrone : SkillBase
 
     public int aliveTime { get; private set; }
 
-    public SummonDrone(int id, string skillName,int coolDown, bool selectable, CharacterLogic caster) : base(id, skillName, coolDown, selectable, caster)
+    public SummonDrone(int id, string skillName,int coolDown, bool selectable, CharacterLogic caster, string description) : base(id, skillName, coolDown, selectable, caster, description)
     {
 
     }
 
-    public override void Cast(Vector2Int targetPos)
+    public override void Cast(Vector2Int targetPos, Team team)
     {
-        base.Cast(targetPos);
+        base.Cast(targetPos, team);
         CharacterInfo info = new CharacterInfo()
         {
             characterId = -1,
@@ -35,11 +35,11 @@ public class SummonDrone : SkillBase
 
     public override void LoadCustomProperty(ISheet sheet)
     {
-        this.droneName = sheet.GetRow(5).GetCell(1).GetString();
-        this.droneIcon = sheet.GetRow(6).GetCell(1).GetString();
-        this.droneHp = sheet.GetRow(7).GetCell(1).GetInt();
-        this.droneAtk = sheet.GetRow(8).GetCell(1).GetInt();
-        this.droneDef = sheet.GetRow(9).GetCell(1).GetInt();
-        this.aliveTime = sheet.GetRow(10).GetCell(1).GetInt();
+        this.droneName = sheet.GetRow(6).GetCell(1).GetString();
+        this.droneIcon = sheet.GetRow(7).GetCell(1).GetString();
+        this.droneHp = sheet.GetRow(8).GetCell(1).GetInt();
+        this.droneAtk = sheet.GetRow(9).GetCell(1).GetInt();
+        this.droneDef = sheet.GetRow(10).GetCell(1).GetInt();
+        this.aliveTime = sheet.GetRow(11).GetCell(1).GetInt();
     }
 }

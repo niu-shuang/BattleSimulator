@@ -19,13 +19,11 @@ public class CharacterPanel : MonoBehaviour
     [SerializeField]
     private Text characterDef;
     [SerializeField]
-    private Button atkButton;
-    [SerializeField]
-    private Button[] skillButtons;
-    [SerializeField]
     private Text nextTurnText;
     [SerializeField]
     private UITweenSequence nextTurnAnimation;
+    [SerializeField]
+    private Text manaText;
 
     private CompositeDisposable disposable;
 
@@ -59,45 +57,12 @@ public class CharacterPanel : MonoBehaviour
         }));
         disposable.Add(character.isDead.Subscribe(isDead=>
         {
-            if(isDead)
-            {
-                atkButton.interactable = false;
-            }
-            else
-            {
-                atkButton.interactable = true;
-            }
         }));
-        for(int i = 0; i < 3; i++)
+        disposable.Add(GameManager.Instance.mana[(int)character.team].Subscribe(mana =>
         {
-            if(i < character.skills.Count)
-            {
-                skillButtons[i].gameObject.SetActive(true);
-                
-                skillButtons[i].onClick.RemoveAllListeners();
-                SkillBase skill = character.skills[i];
-                Button skillButton = skillButtons[i];
-                skillButton.interactable = skill.canCast;
-                disposable.Add(GameManager.Instance.turnBeginSubject.Subscribe(turn =>
-                {
-                    skillButton.interactable = skill.canCast;
-                }));
-                skillButtons[i].onClick.AddListener(()=>
-                {
-                    GameManager.Instance.OnClickSkill(skill);
-                    skillButton.interactable = skill.canCast;
-                });
-                skillButtons[i].transform.GetChild(0).GetComponent<Text>().text = skill.skillName;
-            }
-            else
-            {
-                skillButtons[i].gameObject.SetActive(false);
-            }
-        }
-    }
-
-    public void OnClickAttack()
-    {
-        GameManager.Instance.OnClickAttack();
+            manaText.text = $"Mana: {mana}";
+        }));
+        SkillCardManager.Instance.ShowDeck(character.team);
+        
     }
 }

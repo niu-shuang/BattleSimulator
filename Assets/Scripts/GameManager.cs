@@ -27,7 +27,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public List<UniTask> endTurnTasks;
     public List<UniTask> beginTurnTasks;
 
-
     private List<CharacterLogic> team1;
     private List<CharacterLogic> team2;
     [SerializeField]
@@ -36,10 +35,16 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private CharacterPanel characterPanel;
     [SerializeField]
     private Text info;
+    [SerializeField]
+    private SkillCardManager skillCardManager;
 
     private CharacterLogic currentChara;
     private SkillBase currentSkill;
     private CompositeDisposable disposable;
+    public List<ReactiveProperty<int>> mana;
+
+
+    public Dictionary<CharacterLogic, Sprite> characterIcons;
 
     protected override void Awake()
     {
@@ -52,6 +57,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         phase = new ReactiveProperty<GamePhase>(GamePhase.Prepare);
         team1 = new List<CharacterLogic>();
         team2 = new List<CharacterLogic>();
+        mana = new List<ReactiveProperty<int>>();
+        mana.Add(new ReactiveProperty<int>(GameDefine.MANA_PER_TURN));
+        mana.Add(new ReactiveProperty<int>(GameDefine.MANA_PER_TURN));
+        characterIcons = new Dictionary<CharacterLogic, Sprite>();
+        skillCardManager.Init();
         disposable = new CompositeDisposable();
         characterPanel.Init();
     }
@@ -74,17 +84,27 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 if(skillId > 0)
                 {
                     var skill = SkillsImporter.LoadSkill(skillId, logic);
-                    logic.AddSkill(skill);
+                    skillCardManager.AddSkill(skill, Team.Team1);
                 }
             }
             Sprite sprite = Resources.Load<Sprite>($"Icons/{ item.Value.icon }");
+            characterIcons[logic] = sprite;
             this.team1.Add(logic);
             team1[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(logic, sprite);
         }
         foreach (var item in team2Info)
         {
             CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def);
+            foreach (var skillId in item.Value.skills)
+            {
+                if (skillId > 0)
+                {
+                    var skill = SkillsImporter.LoadSkill(skillId, logic);
+                    skillCardManager.AddSkill(skill, Team.Team2);
+                }
+            }
             Sprite sprite = Resources.Load<Sprite>($"Icons/{ item.Value.icon }");
+            characterIcons[logic] = sprite;
             this.team2.Add(logic);
             team2[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(logic, sprite);
         }
@@ -92,6 +112,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         grids.Init(team1, team2);
         disposable.Add(phase.Subscribe(OnPhaseChanged));
         NextTurnProcess();
+        Observable.Timer(TimeSpan.FromSeconds(1f))
+            .Subscribe(_=>
+            {
+                OnClickGrid(new Vector2Int(0, 1), Team.Team1);
+            });
+        
     }
 
 
@@ -124,6 +150,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         grids.AddCharacter(character, sprite, pos);
 
     }
+
+    public CharacterLogic GetAttackTarget(Team team, int col)
+    {
+        return grids.GetAttackTarget(team, col);
+    }
+
     public void OnClickGrid(Vector2Int pos, Team team)
     {
         switch (phase.Value)
@@ -150,7 +182,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 break;
             case GamePhase.SpecSkill:
                 {
-                    currentSkill.Cast(pos);
+                    currentSkill.Cast(pos, team);
+                    currentSkill.ClearView();
                     phase.Value = GamePhase.SelectChara;
                 }
                 break;
@@ -194,6 +227,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
         phase.Value = GamePhase.SelectChara;
         info.text = "Select a Chara";
+        mana.ForEach(i => i.Value = GameDefine.MANA_PER_TURN);
     }
 
     public void OnClickAttack()
@@ -210,8 +244,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
         else
         {
-            currentSkill.Cast(Vector2Int.zero);
-            phase.Value = GamePhase.SelectChara; 
+            currentSkill.Cast(Vector2Int.zero, skill.caster.team);
+            phase.Value = GamePhase.SelectChara;
+            skill.ClearView();
         }
     }
 

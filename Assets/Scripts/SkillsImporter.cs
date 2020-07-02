@@ -26,7 +26,8 @@ public static class SkillsImporter
         string skillName = sheet.GetRow(2).GetCell(1).GetString();
         int coolDown = sheet.GetRow(3).GetCell(1).GetInt();
         bool selectable = sheet.GetRow(4).GetCell(1).GetBoolean();
-        SkillBase skill = Activator.CreateInstance(skillType, skillId, skillName, coolDown, selectable, character) as SkillBase;
+        string description = sheet.GetRow(5).GetCell(1).GetString();
+        SkillBase skill = Activator.CreateInstance(skillType, skillId, skillName, coolDown, selectable, character, description) as SkillBase;
         skill.LoadCustomProperty(sheet);
         return skill;
     }
