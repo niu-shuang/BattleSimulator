@@ -184,6 +184,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 {
                     currentSkill.Cast(pos, team);
                     currentSkill.ClearView();
+                    skillCardManager.OnUseSkill(currentSkill);
                     phase.Value = GamePhase.SelectChara;
                 }
                 break;
@@ -247,6 +248,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             currentSkill.Cast(Vector2Int.zero, skill.caster.team);
             phase.Value = GamePhase.SelectChara;
             skill.ClearView();
+            skillCardManager.OnUseSkill(skill);
         }
     }
 

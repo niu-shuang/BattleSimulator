@@ -9,5 +9,5 @@ public class GameDefine
 
     public static int MANA_PER_TURN = 3;
 
-    public static int DECK_NUM = 5;
+    public static int CARD_GENERATE_NUM = 5;
 }

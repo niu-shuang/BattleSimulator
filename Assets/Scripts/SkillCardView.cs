@@ -21,6 +21,7 @@ public class SkillCardView : MonoBehaviour
             SetEmpty();
             return;
         }
+        gameObject.SetActive(true);
         cost.text = $"Cost:{skillLogic.cost}";
         casterIcon.sprite = GameManager.Instance.characterIcons[skillLogic.caster];
         description.text = skillLogic.description;
@@ -38,9 +39,6 @@ public class SkillCardView : MonoBehaviour
 
     public void SetEmpty()
     {
-        cost.text = "";
-        description.text = "";
-        casterIcon.sprite = null;
-        skill = null;
+        gameObject.SetActive(false);
     }
 }
