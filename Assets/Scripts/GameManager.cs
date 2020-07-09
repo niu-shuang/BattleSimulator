@@ -64,6 +64,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         skillCardManager.Init();
         disposable = new CompositeDisposable();
         characterPanel.Init();
+        PopupManager.Instance.Init();
     }
 
     public void OnClickImportCharacter()

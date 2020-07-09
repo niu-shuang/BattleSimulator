@@ -14,6 +14,8 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
     private Text cardPoolCount;
     [SerializeField]
     private Text usedCardPoolCount;
+    [SerializeField]
+    private GameObject skillCardsPopupPrefab;
 
     private List<SkillBase> team1Skills;
     private List<SkillBase> team2Skills;
@@ -42,7 +44,7 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
         disposable = new CompositeDisposable();
         disposable.Add(GameManager.Instance.turnBeginSubject.Subscribe(turn =>
         {
-            if(!cardAdded)
+            if (!cardAdded)
             {
                 foreach (var item in team1Skills)
                 {
@@ -54,19 +56,24 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
                 }
                 cardAdded = true;
             }
-            
+
 
             GenerateDeck(team1CardPool, currentDeckTeam1, team1UsedCardPool);
             GenerateDeck(team2CardPool, currentDeckTeam2, team2UsedCardPool);
+            ShowDeck(currentTeam);
+        }));
+        disposable.Add(GameManager.Instance.turnEndSubject.Subscribe(turn =>
+        {
             foreach (var item in currentDeckTeam1)
             {
-                item.ResetCastFlag();
+                team1UsedCardPool.Add(item);
             }
+            currentDeckTeam1.Clear();
             foreach (var item in currentDeckTeam2)
             {
-                item.ResetCastFlag();
+                team2UsedCardPool.Add(item);
             }
-            ShowDeck(currentTeam);
+            currentDeckTeam2.Clear();
         }));
         disposable.Add(team1CardPool.ObserveCountChanged(true).Subscribe(_ => OnCardPoolCountChanged()));
         disposable.Add(team2CardPool.ObserveCountChanged(true).Subscribe(_ => OnCardPoolCountChanged()));
@@ -91,7 +98,7 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
 
     private void OnCardPoolCountChanged()
     {
-        if(currentTeam == Team.Team1)
+        if (currentTeam == Team.Team1)
         {
             cardPoolCount.text = team1CardPool.Count.ToString();
         }
@@ -115,12 +122,12 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
 
     private void GenerateDeck(ReactiveCollection<SkillBase> cardPool, ReactiveCollection<SkillBase> deck, ReactiveCollection<SkillBase> usedCardPool)
     {
-        if(cardPool.Count < GameDefine.CARD_GENERATE_NUM)
+        if (cardPool.Count < GameDefine.CARD_GENERATE_NUM)
         {
             List<SkillBase> tempDeck = new List<SkillBase>();
-            for(int i = 0; i < GameDefine.CARD_GENERATE_NUM - cardPool.Count; i++ )
+            for (int i = 0; i < GameDefine.CARD_GENERATE_NUM - cardPool.Count; i++)
             {
-                if(usedCardPool.Count > 0)
+                if (usedCardPool.Count > 0)
                 {
                     tempDeck.Add(usedCardPool[0].Clone());
                     usedCardPool.RemoveAt(0);
@@ -138,7 +145,7 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
 
         for (int i = 0; i < GameDefine.CARD_GENERATE_NUM; i++)
         {
-            if(cardPool.Count > 0)
+            if (cardPool.Count > 0)
             {
                 int rand = Random.Range(0, cardPool.Count);
                 deck.Add(cardPool[rand]);
@@ -149,7 +156,8 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
 
     public void OnUseSkill(SkillBase skill)
     {
-        if(skill.caster.team == Team.Team1)
+        skill.ResetCastFlag();
+        if (skill.caster.team == Team.Team1)
         {
             team1UsedCardPool.Add(skill);
             currentDeckTeam1.Remove(skill);
@@ -171,6 +179,30 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
         {
             team2Skills.Add(skill);
         }
+    }
+
+    public async void OnClickShowCardPool()
+    {
+        var popup = PopupManager.Instance.Create<SkillCardsPopup>(skillCardsPopupPrefab);
+        if (currentTeam == Team.Team1)
+            popup.SetData(team1CardPool.ToList(), "抽牌堆");
+        else
+            popup.SetData(team2CardPool.ToList(), "抽牌堆");
+        await PopupManager.Instance.ShowAsync(typeof(SkillCardsPopup));
+        await PopupManager.Instance.HideAsync();
+        popup.ClearView();
+    }
+
+    public async void OnClickShowUsedCardPool()
+    {
+        var popup = PopupManager.Instance.Create<SkillCardsPopup>(skillCardsPopupPrefab);
+        if (currentTeam == Team.Team1)
+            popup.SetData(team1UsedCardPool.ToList(), "弃牌堆");
+        else
+            popup.SetData(team2UsedCardPool.ToList(), "弃牌堆");
+        await PopupManager.Instance.ShowAsync(typeof(SkillCardsPopup));
+        await PopupManager.Instance.HideAsync();
+        popup.ClearView();
     }
 
     protected override void SingletonOnDestroy()

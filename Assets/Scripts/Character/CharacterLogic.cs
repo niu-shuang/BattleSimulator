@@ -76,6 +76,7 @@ public class CharacterLogic
         if(target.team != team)
         {
             int finalATK = (int)(atk.Value * GameDefine.ATKMap[Mathf.Abs(target.pos.x - pos.x)]);
+            GameLogger.AddLog($"{name}(Id{characterId}) attack {target.name}(Id{target.characterId}) deal {finalATK} damage");
             target.Damage(finalATK);
         }
         else
@@ -90,6 +91,7 @@ public class CharacterLogic
         if (finalDamage < 0) finalDamage = 0;
         if (finalDamage > Hp.Value) finalDamage = Hp.Value;
         Hp.Value -= finalDamage;
+        GameLogger.AddLog($"{name}(Id{characterId}) receive {finalDamage} damage");
         info.OnNext($"-{finalDamage}");
     }
 }
