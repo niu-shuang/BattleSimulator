@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class CharacterInfo
@@ -9,5 +10,6 @@ public class CharacterInfo
     public int hp;
     public int atk;
     public int def;
-    public int[] skills;
+    public List<int> skills;
+    public string characterType;
 }

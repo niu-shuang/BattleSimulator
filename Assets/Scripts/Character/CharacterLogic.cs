@@ -23,9 +23,11 @@ public class CharacterLogic
 
     public List<BuffBase> buffs { get; private set; }
 
+    public GameDefine.CharacterType characterType { get; private set; }
+
     private CompositeDisposable disposable;
 
-    public CharacterLogic(int characterId,Vector2Int pos, string name, int maxHp, Team team, int atk, int def)
+    public CharacterLogic(int characterId, Vector2Int pos, string name, int maxHp, Team team, int atk, int def, GameDefine.CharacterType characterType)
     {
         this.characterId = characterId;
         this.pos = pos;
@@ -42,11 +44,12 @@ public class CharacterLogic
         this.info = new Subject<string>();
         this.skills = new List<SkillBase>();
         this.buffs = new List<BuffBase>();
+        this.characterType = characterType;
         disposable = new CompositeDisposable();
-        
+
         disposable.Add(Hp.Subscribe(hp =>
         {
-            if(hp <= 0)
+            if (hp <= 0)
             {
                 isDead.Value = true;
                 info.OnCompleted();
@@ -65,24 +68,17 @@ public class CharacterLogic
         buffs.Add(buff);
         buff.Init(this, caster);
     }
-    
+
     public void RemoveBuff(BuffBase buff)
     {
         buffs.Remove(buff);
     }
 
-    public void Attack(CharacterLogic target)
+    public void Attack(CharacterLogic target, int percentage)
     {
-        if(target.team != team)
-        {
-            int finalATK = (int)(atk.Value * GameDefine.ATKMap[Mathf.Abs(target.pos.x - pos.x)]);
-            GameLogger.AddLog($"{name}(Id{characterId}) attack {target.name}(Id{target.characterId}) deal {finalATK} damage");
-            target.Damage(finalATK);
-        }
-        else
-        {
-            Debug.LogError("can not attack teammate");
-        }
+        int finalATK = (int)(atk.Value * GameDefine.ATKMap[Mathf.Abs(target.pos.x - pos.x)] * percentage / 100f);
+        GameLogger.AddLog($"{name}(Id{characterId}) attack {target.name}(Id{target.characterId}) deal {finalATK} damage");
+        target.Damage(finalATK);
     }
 
     public void Damage(int damage)

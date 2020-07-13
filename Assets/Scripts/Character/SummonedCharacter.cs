@@ -11,7 +11,7 @@ public class SummonedCharacter : CharacterLogic
     public int aliveTime { get; private set; }
     private int initTurn;
     private CompositeDisposable disposable;
-    public SummonedCharacter(int characterId, Vector2Int pos, string name, int maxHp, Team team, int atk, int def, int aliveTime) : base(characterId, pos, name, maxHp, team, atk, def)
+    public SummonedCharacter(int characterId, Vector2Int pos, string name, int maxHp, Team team, int atk, int def, GameDefine.CharacterType characterType, int aliveTime) : base(characterId, pos, name, maxHp, team, atk, def, characterType)
     {
         disposable = new CompositeDisposable();
         this.aliveTime = aliveTime;

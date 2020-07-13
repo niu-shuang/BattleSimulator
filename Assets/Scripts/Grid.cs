@@ -38,6 +38,7 @@ public class Grid : MonoBehaviour
         this.pos = pos;
         this.team = team;
         this.characterView.SetEmpty();
+        this.characterLogic = null;
         hasCharacter = false;
     }
 

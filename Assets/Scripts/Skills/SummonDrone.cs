@@ -21,16 +21,23 @@ public class SummonDrone : SkillBase
     public override void Cast(Vector2Int targetPos, Team team)
     {
         base.Cast(targetPos, team);
+        var info = CreateCharacterInfo();
+        GameManager.Instance.AddSummonCharacter(caster.team, caster.pos + new Vector2Int(0, -1), info, aliveTime);
+    }
+
+    protected CharacterInfo CreateCharacterInfo()
+    {
         CharacterInfo info = new CharacterInfo()
         {
             characterId = -1,
             characterName = droneName,
             icon = droneIcon,
-            hp = droneHp,
+            hp = (int)(caster.baseHP * droneHp / 100f),
             atk = droneAtk,
-            def = droneDef
+            def = (int)(caster.baseDef * droneDef / 100f),
+            characterType = GameDefine.CharacterType.Mechanical.ToString()
         };
-        GameManager.Instance.AddSummonCharacter(caster.team, caster.pos + new Vector2Int(0, -1), info, aliveTime);
+        return info;
     }
 
     public override void LoadCustomProperty(ISheet sheet)

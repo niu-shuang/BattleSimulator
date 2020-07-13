@@ -89,10 +89,21 @@ public static class CharacterImporter
         info.hp = charaSheet.GetRow(2).GetCell(1).GetInt();
         info.atk = charaSheet.GetRow(3).GetCell(1).GetInt();
         info.def = charaSheet.GetRow(4).GetCell(1).GetInt();
-        int[] skills = new int[3];
-        skills[0] = charaSheet.GetRow(5).GetCell(1).GetInt();
-        skills[1] = charaSheet.GetRow(6).GetCell(1).GetInt();
-        skills[2] = charaSheet.GetRow(7).GetCell(1).GetInt();
+        info.characterType = charaSheet.GetRow(5).GetCell(1).GetString();
+        List<int> skills = new List<int>();
+        int skillIndex = 6;
+        while(true)
+        {
+            if(charaSheet.GetRow(skillIndex) != null)
+            {
+                skills.Add(charaSheet.GetRow(skillIndex).GetCell(1).GetInt());
+                skillIndex++;
+            }
+            else
+            {
+                break;
+            }
+        }
         info.skills = skills;
     }
 
