@@ -1,6 +1,7 @@
 ﻿using NPOI.SS.UserModel;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class Attack : SkillBase
@@ -20,7 +21,12 @@ public class Attack : SkillBase
     {
         if (team == caster.team) return;
         var target = GameManager.Instance.GetAttackTarget(team, targetPos.x);
-        caster.Attack(target, atkPercentage);
+        disposable.Add(caster.beforeAttackSubject
+            .Subscribe(attackInfo =>
+            {
+                attackInfo.finalAtk = (int)(attackInfo.finalAtk * atkPercentage / 1000f);
+            }));
+        caster.Attack(target);
         base.Cast(targetPos, team);
     }
 }

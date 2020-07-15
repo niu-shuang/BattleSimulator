@@ -16,19 +16,16 @@ public class DroneExplosion : SkillBase
     public override void Cast(Vector2Int targetPos, Team team)
     {
         base.Cast(targetPos, team);
-        var drones = new List<SummonedCharacter>();
-        for(int i = 0; i < 3; i++)
+        SummonedCharacter drone = null;
+        var chara = GameManager.Instance.GetCharacter(targetPos, caster.team);
+        if(chara is SummonedCharacter)
         {
-            var chara = GameManager.Instance.GetCharacter(new Vector2Int(i, 0), caster.team);
-            if(chara is SummonedCharacter)
-            {
-                drones.Add(chara as SummonedCharacter);
-            }
+            drone = chara as SummonedCharacter;
         }
-        if (drones.Count == 0) return;
-        var rand = Random.Range(0, drones.Count);
-        var target = GameManager.Instance.GetCharacter(targetPos, team);
-        target.Damage((int)(drones[rand].Hp.Value * .5f));
-        drones[rand].Hp.Value = 0;
+        if (drone == null) return;
+        var target = GameManager.Instance.GetAttackTarget(team.GetOpposite(), targetPos.x);
+        AttackInfo info = new AttackInfo(drone, target, (int)(drone.Hp.Value * .5f), GameDefine.DamageType.Magical);
+        info.DoDamage();
+        drone.Hp.Value = 0;
     }
 }

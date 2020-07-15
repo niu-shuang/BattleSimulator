@@ -90,8 +90,9 @@ public static class CharacterImporter
         info.atk = charaSheet.GetRow(3).GetCell(1).GetInt();
         info.def = charaSheet.GetRow(4).GetCell(1).GetInt();
         info.characterType = charaSheet.GetRow(5).GetCell(1).GetString();
+        info.dodgeRate = charaSheet.GetRow(6).GetCell(1).GetInt();
         List<int> skills = new List<int>();
-        int skillIndex = 6;
+        int skillIndex = 7;
         while(true)
         {
             if(charaSheet.GetRow(skillIndex) != null)

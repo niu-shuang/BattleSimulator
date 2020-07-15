@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class GameDefine
@@ -14,5 +15,22 @@ public class GameDefine
     {
         Biological,
         Mechanical
+    }
+
+    public enum DamageType
+    {
+        Physical,
+        Magical,
+    }
+}
+
+public static partial class BattleExtensionMethods
+{
+    public static Team GetOpposite(this Team origin)
+    {
+        if (origin == Team.Team1)
+            return Team.Team2;
+        else
+            return Team.Team1;
     }
 }

@@ -156,7 +156,7 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
 
     public void OnUseSkill(SkillBase skill)
     {
-        skill.ResetCastFlag();
+        skill.Reset();
         if (skill.caster.team == Team.Team1)
         {
             team1UsedCardPool.Add(skill);

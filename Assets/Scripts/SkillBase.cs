@@ -1,4 +1,5 @@
 ﻿using NPOI.SS.UserModel;
+using UniRx;
 using UnityEngine;
 
 public abstract class SkillBase
@@ -22,6 +23,8 @@ public abstract class SkillBase
     private SkillCardView view;
     public bool casted { get; private set; }
 
+    public CompositeDisposable disposable;
+
     public bool canCast => GameManager.Instance.mana[(int)caster.team].Value - cost >= 0;
 
     public SkillBase(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description)
@@ -33,6 +36,7 @@ public abstract class SkillBase
         this.cost = cost;
         this.description = description;
         this.casted = false;
+        disposable = new CompositeDisposable();
         castTurn = -1;
     }
 
@@ -43,9 +47,11 @@ public abstract class SkillBase
         casted = true;
     }
 
-    public void ResetCastFlag()
+    public void Reset()
     {
         casted = false;
+        disposable.Dispose();
+        disposable = new CompositeDisposable();
     }
 
     public void SetView(SkillCardView view)

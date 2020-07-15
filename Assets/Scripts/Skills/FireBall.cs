@@ -14,7 +14,8 @@ public class FireBall : SkillBase
         var target = GameManager.Instance.GetCharacter(targetPos, targetTeam);
         if(target != null)
         {
-            target.Damage(damage);
+            AttackInfo info = new AttackInfo(caster, target, damage, GameDefine.DamageType.Magical);
+            info.DoDamage();
             base.Cast(targetPos, team);
         }
     }

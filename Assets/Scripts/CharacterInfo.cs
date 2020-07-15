@@ -12,4 +12,6 @@ public class CharacterInfo
     public int def;
     public List<int> skills;
     public string characterType;
+    //千分数
+    public int dodgeRate;
 }

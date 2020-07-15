@@ -35,7 +35,8 @@ public class SummonDrone : SkillBase
             hp = (int)(caster.baseHP * droneHp / 100f),
             atk = droneAtk,
             def = (int)(caster.baseDef * droneDef / 100f),
-            characterType = GameDefine.CharacterType.Mechanical.ToString()
+            characterType = GameDefine.CharacterType.Mechanical.ToString(),
+            dodgeRate = caster.baseDodgeRate
         };
         return info;
     }

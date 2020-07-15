@@ -74,16 +74,16 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public void OnImportCharacterSuc(Dictionary<Vector2Int, CharacterInfo> team1Info, Dictionary<Vector2Int, CharacterInfo> team2Info)
     {
         PopupManager.Instance.Init();
-        SkillsImporter.OpenExcel(Path.Combine(CharacterImporter.path,"Skills.xls"));
+        SkillsImporter.OpenExcel(Path.Combine(CharacterImporter.path, "Skills.xls"));
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team1 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team2 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
         foreach (var item in team1Info)
         {
             GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), item.Value.characterType);
-            CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team1, item.Value.atk, item.Value.def, type);
+            CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team1, item.Value.atk, item.Value.def, type, item.Value.dodgeRate);
             foreach (var skillId in item.Value.skills)
             {
-                if(skillId > 0)
+                if (skillId > 0)
                 {
                     var skill = SkillsImporter.LoadSkill(skillId, logic);
                     skillCardManager.AddSkill(skill, Team.Team1);
@@ -97,7 +97,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         foreach (var item in team2Info)
         {
             GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), item.Value.characterType);
-            CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def, type);
+            CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def, type, item.Value.dodgeRate);
             foreach (var skillId in item.Value.skills)
             {
                 if (skillId > 0)
@@ -116,11 +116,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         disposable.Add(phase.Subscribe(OnPhaseChanged));
         NextTurnProcess();
         Observable.Timer(TimeSpan.FromSeconds(1f))
-            .Subscribe(_=>
+            .Subscribe(_ =>
             {
                 OnClickGrid(new Vector2Int(0, 1), Team.Team1);
             });
-        
+
     }
 
 
@@ -154,7 +154,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             grids.RemoveCharacter(pos, team);
         }
         GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), characterInfo.characterType);
-        SummonedCharacter character = new SummonedCharacter(-1, pos, characterInfo.characterName, characterInfo.hp, team, characterInfo.atk, characterInfo.def, type, aliveTime);
+        SummonedCharacter character = new SummonedCharacter(-1, pos, characterInfo.characterName, characterInfo.hp, team, characterInfo.atk, characterInfo.def, type, characterInfo.dodgeRate, aliveTime);
         Sprite sprite = Resources.Load<Sprite>($"Icons/{ characterInfo.icon }");
         grids.AddCharacter(character, sprite, pos);
 
@@ -185,7 +185,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 {
                     if (team == currentChara.team) return;
                     var target = grids.GetAttackTarget(team, pos.x);
-                    currentChara.Attack(target, 100);
+                    currentChara.Attack(target);
                     phase.Value = GamePhase.SelectChara;
                 }
                 break;
@@ -225,13 +225,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         endTurnTasks.Clear();
         beginTurnTasks.Clear();
         turnEndSubject.OnNext(turn);
-        for(int i = 0; i < endTurnTasks.Count; i++)
+        for (int i = 0; i < endTurnTasks.Count; i++)
         {
             await endTurnTasks[i];
         }
         turn++;
         turnBeginSubject.OnNext(turn);
-        for(int i = 0; i < beginTurnTasks.Count; i++)
+        for (int i = 0; i < beginTurnTasks.Count; i++)
         {
             await beginTurnTasks[i];
         }
@@ -248,7 +248,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public void OnClickSkill(SkillBase skill)
     {
         currentSkill = skill;
-        if(currentSkill.selectable)
+        if (currentSkill.selectable)
         {
             phase.Value = GamePhase.SpecSkill;
         }
