@@ -9,17 +9,19 @@ public class AttackInfo
     public CharacterLogic caster { get; private set; }
     public CharacterLogic target { get; private set; }
 
+    public int baseAtk { get; private set; }
     public int finalAtk;
 
     public GameDefine.DamageType damageType { get; private set; }
 
     private Action<AttackInfo> onAttack;
 
-    public AttackInfo(CharacterLogic caster, CharacterLogic target, int finalAttack, GameDefine.DamageType damageType)
+    public AttackInfo(CharacterLogic caster, CharacterLogic target, int baseAtk, GameDefine.DamageType damageType)
     {
         this.caster = caster;
         this.target = target;
-        this.finalAtk = finalAttack;
+        this.baseAtk = baseAtk;
+        this.finalAtk = baseAtk;
         this.damageType = damageType;
     }
 
@@ -33,7 +35,6 @@ public class AttackInfo
     {
         caster.beforeAttackSubject?.OnNext(this);
         onAttack?.Invoke(this);
-        caster.afterAttackSubject?.OnNext(this);
         GameLogger.AddLog($"{caster.name}(id : {caster.characterId}) deal {this.finalAtk} atk to {target.name}");
         DamageInfo damageInfo = new DamageInfo(this);
         target.beforeDamageSubject?.OnNext(damageInfo);
@@ -56,12 +57,14 @@ public class AttackInfo
         });
         damageInfo.InvokeDamageAction();
         target.Damage(damageInfo);
+        caster.afterAttackSubject?.OnNext(this);
         target.afterDamageSubject?.OnNext(damageInfo);
     }
 
     private bool isHit()
     {
-        int hitRate = UnityEngine.Random.Range(0, 1000);
-        return hitRate - target.dodgeRate.Value > 0;
+        int hitRateRoll = UnityEngine.Random.Range(0, GameDefine.PERCENTAGE_MAX);
+        int missRate = 1000 - caster.hitRateModifier.finalValue.Value;
+        return hitRateRoll - target.dodgeRate.Value - missRate > 0;
     }
 }

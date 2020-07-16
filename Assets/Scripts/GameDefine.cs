@@ -11,6 +11,21 @@ public class GameDefine
     public static int MANA_PER_TURN = 4;
 
     public static int CARD_GENERATE_NUM = 5;
+
+    public static int SKILL_CUSTOM_PROPERTY_START_ROW = 6;
+    
+    /// <summary>
+    /// 千分之单位的100%
+    /// </summary>
+    public static int PERCENTAGE_MAX = 1000;
+
+    public enum BuffTickType
+    {
+        Turn,
+        Attack,
+        Damage,
+    }
+
     public enum CharacterType
     {
         Biological,

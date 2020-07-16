@@ -30,6 +30,11 @@ public class Modifier : IDisposable
             .Subscribe(_=> CalcFinalValue()));
     }
 
+    public void AddValueDirectly(int value)
+    {
+        baseValue += value;
+    }
+
     public void AddItem(Item item)
     {
         items.Add(item);

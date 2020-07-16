@@ -14,7 +14,7 @@ public class Attack : SkillBase
 
     public override void LoadCustomProperty(ISheet sheet)
     {
-        atkPercentage = sheet.GetRow(6).GetCell(1).GetInt();   
+        atkPercentage = sheet.GetRow(GameDefine.SKILL_CUSTOM_PROPERTY_START_ROW).GetCell(1).GetInt();   
     }
 
     public override void Cast(Vector2Int targetPos, Team team)

@@ -24,6 +24,8 @@ public class CharacterLogic
     public Modifier dodgeRateModifier { get; private set; }
     public ReactiveProperty<int> dodgeRate => dodgeRateModifier.finalValue;
 
+    public Modifier hitRateModifier { get; private set; }
+
     public ReactiveProperty<bool> isDead;
 
     public Subject<string> info;
@@ -33,6 +35,9 @@ public class CharacterLogic
 
     public Subject<DamageInfo> beforeDamageSubject;
     public Subject<DamageInfo> afterDamageSubject;
+
+    public Subject<HealInfo> beforeHealSubject;
+    public Subject<HealInfo> afterHealSubject;
 
     public List<SkillBase> skills { get; private set; }
 
@@ -57,6 +62,7 @@ public class CharacterLogic
         this.defModifier = new Modifier(def);
         this.baseDodgeRate = dodgeRate;
         this.dodgeRateModifier = new Modifier(dodgeRate);
+        this.hitRateModifier = new Modifier(GameDefine.PERCENTAGE_MAX);
         this.isDead = new ReactiveProperty<bool>(false);
         this.info = new Subject<string>();
         this.skills = new List<SkillBase>();
@@ -68,6 +74,8 @@ public class CharacterLogic
         afterAttackSubject = new Subject<AttackInfo>();
         beforeDamageSubject = new Subject<DamageInfo>();
         afterDamageSubject = new Subject<DamageInfo>();
+        beforeHealSubject = new Subject<HealInfo>();
+        afterHealSubject = new Subject<HealInfo>();
         disposable.Add(Hp.Subscribe(hp =>
         {
             if (hp <= 0)
@@ -78,6 +86,8 @@ public class CharacterLogic
                 afterAttackSubject.OnCompleted();
                 beforeDamageSubject.OnCompleted();
                 afterDamageSubject.OnCompleted();
+                beforeHealSubject.OnCompleted();
+                afterHealSubject.OnCompleted();
                 disposable.Dispose();
             }
         }));
@@ -91,7 +101,6 @@ public class CharacterLogic
     public void AddBuff(BuffBase buff, CharacterLogic caster)
     {
         buffs.Add(buff);
-        buff.Init(this, caster);
     }
 
     public void RemoveBuff(BuffBase buff)
@@ -111,9 +120,23 @@ public class CharacterLogic
         int finalDamage = damageInfo.damage;
         if (finalDamage < 0) finalDamage = 0;
         if (finalDamage > Hp.Value) finalDamage = Hp.Value;
-        Hp.Value -= finalDamage;
+        hpModifier.AddValueDirectly(-finalDamage);
         GameLogger.AddLog($"{name}(Id{characterId}) receive {finalDamage} damage");
         info.OnNext($"-{finalDamage}");
+    }
+
+    public void Heal(HealInfo healInfo)
+    {
+        if (isDead.Value == true) return;
+        int finalHeal = healInfo.finalHeal;
+
+        if(finalHeal + Hp.Value > maxHp.Value)
+        {
+            finalHeal = maxHp.Value - Hp.Value;
+        }
+        hpModifier.AddValueDirectly(finalHeal);
+        GameLogger.AddLog($"{name}(Id{characterId}) get {finalHeal} heal");
+        info.OnNext($"+{finalHeal}");
     }
 }
 
