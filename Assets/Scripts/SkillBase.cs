@@ -40,7 +40,12 @@ public abstract class SkillBase
         castTurn = -1;
     }
 
-    public virtual void Cast(Vector2Int targetPos, Team team)
+    public virtual bool Cast(Vector2Int targetPos, Team team)
+    {
+        return true;
+    }
+
+    protected void OnCastSuc()
     {
         castTurn = GameManager.Instance.turn;
         GameManager.Instance.mana[(int)caster.team].Value -= cost;

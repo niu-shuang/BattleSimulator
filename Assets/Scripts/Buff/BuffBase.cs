@@ -50,8 +50,13 @@ public class BuffBase
                 Tick();
             OnAfterDamage(damageInfo);
         }));
+        OnCast();
     }
 
+    protected virtual void OnCast()
+    {
+
+    }
     protected virtual void OnTurnBegins()
     {
 

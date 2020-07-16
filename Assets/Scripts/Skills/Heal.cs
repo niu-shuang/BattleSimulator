@@ -15,10 +15,12 @@ public class Heal : SkillBase
         healPercentage = sheet.GetRow(GameDefine.SKILL_CUSTOM_PROPERTY_START_ROW).GetCell(1).GetInt();
     }
 
-    public override void Cast(Vector2Int targetPos, Team team)
+    public override bool Cast(Vector2Int targetPos, Team team)
     {
         base.Cast(targetPos, team);
         HealInfo healInfo = new HealInfo(caster, caster, (int)(caster.maxHp.Value * healPercentage / 1000f));
         healInfo.DoHeal();
+        OnCastSuc();
+        return true;
     }
 }

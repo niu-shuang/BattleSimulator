@@ -13,19 +13,20 @@ public class DroneExplosion : SkillBase
     {
     }
 
-    public override void Cast(Vector2Int targetPos, Team team)
+    public override bool Cast(Vector2Int targetPos, Team team)
     {
-        base.Cast(targetPos, team);
         SummonedCharacter drone = null;
         var chara = GameManager.Instance.GetCharacter(targetPos, caster.team);
         if(chara is SummonedCharacter)
         {
             drone = chara as SummonedCharacter;
         }
-        if (drone == null) return;
+        if (drone == null) return false;
         var target = GameManager.Instance.GetAttackTarget(team.GetOpposite(), targetPos.x);
         AttackInfo info = new AttackInfo(drone, target, (int)(drone.Hp.Value * .5f), GameDefine.DamageType.Magical);
         info.DoDamage();
         drone.Hp.Value = 0;
+        OnCastSuc();
+        return true;
     }
 }

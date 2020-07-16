@@ -8,7 +8,7 @@ public class FireBall : SkillBase
     {
     }
 
-    public override void Cast(Vector2Int targetPos, Team team)
+    public override bool Cast(Vector2Int targetPos, Team team)
     {
         Team targetTeam = caster.team == Team.Team1 ? Team.Team2 : Team.Team1;
         var target = GameManager.Instance.GetCharacter(targetPos, targetTeam);
@@ -16,8 +16,10 @@ public class FireBall : SkillBase
         {
             AttackInfo info = new AttackInfo(caster, target, damage, GameDefine.DamageType.Magical);
             info.DoDamage();
-            base.Cast(targetPos, team);
+            OnCastSuc();
+            return true;
         }
+        return false;
     }
 
     public override void LoadCustomProperty(ISheet sheet)

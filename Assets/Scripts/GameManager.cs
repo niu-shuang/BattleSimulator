@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using System.IO;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
+using System.Linq;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
@@ -43,6 +44,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private CompositeDisposable disposable;
     public List<ReactiveProperty<int>> mana;
 
+    private Dictionary<Team, List<CharacterLogic>> tauntUnit;
 
     public Dictionary<CharacterLogic, Sprite> characterIcons;
 
@@ -61,6 +63,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         mana.Add(new ReactiveProperty<int>(GameDefine.MANA_PER_TURN));
         mana.Add(new ReactiveProperty<int>(GameDefine.MANA_PER_TURN));
         characterIcons = new Dictionary<CharacterLogic, Sprite>();
+        tauntUnit = new Dictionary<Team, List<CharacterLogic>>();
+        tauntUnit[Team.Team1] = new List<CharacterLogic>();
+        tauntUnit[Team.Team2] = new List<CharacterLogic>();
         skillCardManager.Init();
         disposable = new CompositeDisposable();
         characterPanel.Init();
@@ -160,8 +165,22 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     }
 
+    public void RegisterTauntUnit(CharacterLogic unit)
+    {
+        tauntUnit[unit.team].Add(unit);
+    }
+
+    public void UnRegisterTauntUnit(CharacterLogic unit)
+    {
+        tauntUnit[unit.team].Remove(unit);
+    }
+
     public CharacterLogic GetAttackTarget(Team team, int col)
     {
+        if(tauntUnit[team].Count > 0)
+        {
+            return tauntUnit[team].FirstOrDefault();
+        }
         return grids.GetAttackTarget(team, col);
     }
 
@@ -191,9 +210,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 break;
             case GamePhase.SpecSkill:
                 {
-                    currentSkill.Cast(pos, team);
-                    currentSkill.ClearView();
-                    skillCardManager.OnUseSkill(currentSkill);
+                    var isSuc = currentSkill.Cast(pos, team);
+                    if(isSuc)
+                    {
+                        currentSkill.ClearView();
+                        skillCardManager.OnUseSkill(currentSkill);
+                    }
                     phase.Value = GamePhase.SelectChara;
                 }
                 break;

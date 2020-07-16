@@ -33,6 +33,7 @@ public class Modifier : IDisposable
     public void AddValueDirectly(int value)
     {
         baseValue += value;
+        CalcFinalValue();
     }
 
     public void AddItem(Item item)

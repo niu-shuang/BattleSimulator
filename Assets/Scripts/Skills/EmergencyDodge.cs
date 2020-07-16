@@ -15,10 +15,11 @@ public class EmergencyDodge : SkillBase
         dodgeRate = sheet.GetRow(GameDefine.SKILL_CUSTOM_PROPERTY_START_ROW).GetCell(1).GetInt();
     }
 
-    public override void Cast(Vector2Int targetPos, Team team)
+    public override bool Cast(Vector2Int targetPos, Team team)
     {
-        base.Cast(targetPos, team);
         PerfectDodgeOnce buff = new PerfectDodgeOnce();
         buff.Init(caster, caster, GameDefine.BuffTickType.Damage, false, 1);
+        OnCastSuc();
+        return true;
     }
 }

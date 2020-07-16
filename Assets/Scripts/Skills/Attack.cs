@@ -17,9 +17,9 @@ public class Attack : SkillBase
         atkPercentage = sheet.GetRow(GameDefine.SKILL_CUSTOM_PROPERTY_START_ROW).GetCell(1).GetInt();   
     }
 
-    public override void Cast(Vector2Int targetPos, Team team)
+    public override bool Cast(Vector2Int targetPos, Team team)
     {
-        if (team == caster.team) return;
+        if (team == caster.team) return false;
         var target = GameManager.Instance.GetAttackTarget(team, targetPos.x);
         disposable.Add(caster.beforeAttackSubject
             .Subscribe(attackInfo =>
@@ -27,6 +27,7 @@ public class Attack : SkillBase
                 attackInfo.finalAtk = (int)(attackInfo.finalAtk * atkPercentage / 1000f);
             }));
         caster.Attack(target);
-        base.Cast(targetPos, team);
+        OnCastSuc();
+        return true;
     }
 }

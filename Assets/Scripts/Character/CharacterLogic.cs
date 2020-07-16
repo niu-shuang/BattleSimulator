@@ -39,6 +39,8 @@ public class CharacterLogic
     public Subject<HealInfo> beforeHealSubject;
     public Subject<HealInfo> afterHealSubject;
 
+    public ReactiveProperty<bool> isTaunt;
+
     public List<SkillBase> skills { get; private set; }
 
     public List<BuffBase> buffs { get; private set; }
@@ -68,6 +70,7 @@ public class CharacterLogic
         this.skills = new List<SkillBase>();
         this.buffs = new List<BuffBase>();
         this.characterType = characterType;
+        this.isTaunt = new ReactiveProperty<bool>(false);
         disposable = new CompositeDisposable();
 
         beforeAttackSubject = new Subject<AttackInfo>();
@@ -76,11 +79,23 @@ public class CharacterLogic
         afterDamageSubject = new Subject<DamageInfo>();
         beforeHealSubject = new Subject<HealInfo>();
         afterHealSubject = new Subject<HealInfo>();
+        disposable.Add(isTaunt.Subscribe(taunt =>
+        {
+            if(taunt)
+            {
+                GameManager.Instance.RegisterTauntUnit(this);
+            }
+            else
+            {
+                GameManager.Instance.UnRegisterTauntUnit(this);
+            }
+        }));
         disposable.Add(Hp.Subscribe(hp =>
         {
             if (hp <= 0)
             {
                 isDead.Value = true;
+                isTaunt.Value = false;
                 info.OnCompleted();
                 beforeAttackSubject.OnCompleted();
                 afterAttackSubject.OnCompleted();

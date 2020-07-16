@@ -18,11 +18,12 @@ public class SummonDrone : SkillBase
 
     }
 
-    public override void Cast(Vector2Int targetPos, Team team)
+    public override bool Cast(Vector2Int targetPos, Team team)
     {
-        base.Cast(targetPos, team);
         var info = CreateCharacterInfo();
         GameManager.Instance.AddSummonCharacter(caster.team, caster.pos + new Vector2Int(0, -1), info, aliveTime);
+        OnCastSuc();
+        return true;
     }
 
     protected CharacterInfo CreateCharacterInfo()
