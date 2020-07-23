@@ -26,7 +26,6 @@ public class DroneExplosion : SkillBase
         AttackInfo info = new AttackInfo(drone, target, (int)(drone.Hp.Value * .5f), GameDefine.DamageType.Magical);
         info.DoDamage();
         drone.Hp.Value = 0;
-        OnCastSuc();
-        return true;
+        return base.Cast(targetPos, team);
     }
 }

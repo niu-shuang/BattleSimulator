@@ -20,7 +20,6 @@ public class SummonDroneAll : SummonDrone
                 GameManager.Instance.AddSummonCharacter(caster.team, pos + new Vector2Int(0, -1), info, aliveTime);
             }
         }
-        OnCastSuc();
-        return true;
+        return base.Cast(targetPos, team);
     }
 }

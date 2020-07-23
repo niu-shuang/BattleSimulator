@@ -16,8 +16,7 @@ public class FireBall : SkillBase
         {
             AttackInfo info = new AttackInfo(caster, target, damage, GameDefine.DamageType.Magical);
             info.DoDamage();
-            OnCastSuc();
-            return true;
+            return base.Cast(targetPos, team);
         }
         return false;
     }

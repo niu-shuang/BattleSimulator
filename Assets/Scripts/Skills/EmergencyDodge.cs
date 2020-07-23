@@ -19,7 +19,6 @@ public class EmergencyDodge : SkillBase
     {
         PerfectDodgeOnce buff = new PerfectDodgeOnce();
         buff.Init(caster, caster, GameDefine.BuffTickType.Damage, false, 1);
-        OnCastSuc();
-        return true;
+        return base.Cast(targetPos, team);
     }
 }

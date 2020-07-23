@@ -43,6 +43,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private SkillBase currentSkill;
     private CompositeDisposable disposable;
     public List<ReactiveProperty<int>> mana;
+    public List<ReactiveProperty<int>> maxMana;
 
     private Dictionary<Team, List<CharacterLogic>> tauntUnit;
 
@@ -60,8 +61,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         team1 = new List<CharacterLogic>();
         team2 = new List<CharacterLogic>();
         mana = new List<ReactiveProperty<int>>();
-        mana.Add(new ReactiveProperty<int>(GameDefine.MANA_PER_TURN));
-        mana.Add(new ReactiveProperty<int>(GameDefine.MANA_PER_TURN));
+        mana.Add(new ReactiveProperty<int>(GameDefine.DEFAULT_MANA_PER_TURN));
+        mana.Add(new ReactiveProperty<int>(GameDefine.DEFAULT_MANA_PER_TURN));
+        maxMana = new List<ReactiveProperty<int>>();
+        maxMana.Add(new ReactiveProperty<int>(GameDefine.DEFAULT_MANA_PER_TURN));
+        maxMana.Add(new ReactiveProperty<int>(GameDefine.DEFAULT_MANA_PER_TURN));
         characterIcons = new Dictionary<CharacterLogic, Sprite>();
         tauntUnit = new Dictionary<Team, List<CharacterLogic>>();
         tauntUnit[Team.Team1] = new List<CharacterLogic>();
@@ -79,7 +83,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public void OnImportCharacterSuc(Dictionary<Vector2Int, CharacterInfo> team1Info, Dictionary<Vector2Int, CharacterInfo> team2Info)
     {
         PopupManager.Instance.Init();
-        SkillsImporter.OpenExcel(Path.Combine(CharacterImporter.path, "Skills.xls"));
+        for(int i = 0; i < 4; i++)
+        {
+            SkillsImporter.OpenExcel(Path.Combine(CharacterImporter.path, $"Skills{i}.xls"));
+        }
+        
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team1 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team2 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
         foreach (var item in team1Info)
@@ -160,9 +168,28 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
         GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), characterInfo.characterType);
         SummonedCharacter character = new SummonedCharacter(-1, pos, characterInfo.characterName, characterInfo.hp, team, characterInfo.atk, characterInfo.def, type, characterInfo.dodgeRate, aliveTime);
+        if (team == Team.Team1)
+            team1.Add(character);
+        else
+            team2.Add(character);
         Sprite sprite = Resources.Load<Sprite>($"Icons/{ characterInfo.icon }");
         grids.AddCharacter(character, sprite, pos);
 
+    }
+
+    public void AddSummonCharacter(CharacterLogic characterLogic, string icon)
+    {
+        var existChara = GetCharacter(characterLogic.pos, characterLogic.team);
+        if (existChara != null)
+        {
+            grids.RemoveCharacter(characterLogic.pos, characterLogic.team);
+        }
+        if (characterLogic.team == Team.Team1)
+            team1.Add(characterLogic);
+        else
+            team2.Add(characterLogic);
+        Sprite sprite = Resources.Load<Sprite>($"Icons/{ icon }");
+        grids.AddCharacter(characterLogic, sprite, characterLogic.pos);
     }
 
     public void RegisterTauntUnit(CharacterLogic unit)
@@ -177,7 +204,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     public CharacterLogic GetAttackTarget(Team team, int col)
     {
-        if(tauntUnit[team].Count > 0)
+        if (tauntUnit[team].Count > 0)
         {
             return tauntUnit[team].FirstOrDefault();
         }
@@ -211,7 +238,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             case GamePhase.SpecSkill:
                 {
                     var isSuc = currentSkill.Cast(pos, team);
-                    if(isSuc)
+                    if (isSuc)
                     {
                         currentSkill.ClearView();
                         skillCardManager.OnUseSkill(currentSkill);
@@ -230,6 +257,29 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     {
         return grids.GetCharacter(team, pos);
     }
+
+    public List<CharacterLogic> GetCharactersInOneCol(int col, Team team)
+    {
+        List<CharacterLogic> targets = new List<CharacterLogic>();
+        for (int i = 0; i < 2; i++)
+        {
+            var chara = GetCharacter(new Vector2Int(col, i), team);
+            if (chara != null)
+            {
+                targets.Add(chara);
+            }
+        }
+        return targets;
+    }
+
+    public List<CharacterLogic> GetCharacters(Team team)
+    {
+        if (team == Team.Team1)
+            return team1;
+        else
+            return team2;
+    }
+
     public void OnClickCancel()
     {
         switch (phase.Value)
@@ -259,7 +309,10 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
         phase.Value = GamePhase.SelectChara;
         info.text = "Select a Chara";
-        mana.ForEach(i => i.Value = GameDefine.MANA_PER_TURN);
+        for(int i = 0; i < 2; i++)
+        {
+            mana[i].Value = maxMana[i].Value;
+        }
     }
 
     public void OnClickAttack()

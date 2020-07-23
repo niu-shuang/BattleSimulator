@@ -22,8 +22,7 @@ public class SummonDrone : SkillBase
     {
         var info = CreateCharacterInfo();
         GameManager.Instance.AddSummonCharacter(caster.team, caster.pos + new Vector2Int(0, -1), info, aliveTime);
-        OnCastSuc();
-        return true;
+        return base.Cast(targetPos, team);
     }
 
     protected CharacterInfo CreateCharacterInfo()
@@ -33,9 +32,9 @@ public class SummonDrone : SkillBase
             characterId = -1,
             characterName = droneName,
             icon = droneIcon,
-            hp = (int)(caster.baseHP * droneHp / 100f),
+            hp = (int)(caster.baseHP * droneHp / 1000f),
             atk = droneAtk,
-            def = (int)(caster.baseDef * droneDef / 100f),
+            def = (int)(caster.baseDef * droneDef / 1000f),
             characterType = GameDefine.CharacterType.Mechanical.ToString(),
             dodgeRate = caster.baseDodgeRate
         };

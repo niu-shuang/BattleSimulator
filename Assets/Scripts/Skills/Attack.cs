@@ -27,7 +27,6 @@ public class Attack : SkillBase
                 attackInfo.finalAtk = (int)(attackInfo.finalAtk * atkPercentage / 1000f);
             }));
         caster.Attack(target);
-        OnCastSuc();
-        return true;
+        return base.Cast(targetPos, team);
     }
 }

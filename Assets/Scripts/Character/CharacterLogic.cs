@@ -41,6 +41,8 @@ public class CharacterLogic
 
     public ReactiveProperty<bool> isTaunt;
 
+    public bool isStun;
+
     public List<SkillBase> skills { get; private set; }
 
     public List<BuffBase> buffs { get; private set; }
@@ -71,6 +73,7 @@ public class CharacterLogic
         this.buffs = new List<BuffBase>();
         this.characterType = characterType;
         this.isTaunt = new ReactiveProperty<bool>(false);
+        this.isStun = false;
         disposable = new CompositeDisposable();
 
         beforeAttackSubject = new Subject<AttackInfo>();
@@ -113,7 +116,7 @@ public class CharacterLogic
         skills.Add(skill);
     }
 
-    public void AddBuff(BuffBase buff, CharacterLogic caster)
+    public void AddBuff(BuffBase buff)
     {
         buffs.Add(buff);
     }

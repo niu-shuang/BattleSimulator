@@ -25,7 +25,7 @@ public abstract class SkillBase
 
     public CompositeDisposable disposable;
 
-    public bool canCast => GameManager.Instance.mana[(int)caster.team].Value - cost >= 0;
+    public bool canCast => GameManager.Instance.mana[(int)caster.team].Value - cost >= 0 && !caster.isStun;
 
     public SkillBase(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description)
     {
@@ -42,14 +42,10 @@ public abstract class SkillBase
 
     public virtual bool Cast(Vector2Int targetPos, Team team)
     {
-        return true;
-    }
-
-    protected void OnCastSuc()
-    {
         castTurn = GameManager.Instance.turn;
         GameManager.Instance.mana[(int)caster.team].Value -= cost;
         casted = true;
+        return true;
     }
 
     public void Reset()

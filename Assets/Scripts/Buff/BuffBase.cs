@@ -28,12 +28,12 @@ public class BuffBase
         }));
         disposable.Add(GameManager.Instance.turnEndSubject.Subscribe(turn =>
         {
-            if(tickType == GameDefine.BuffTickType.Turn)
-                Tick();
             OnTurnEnds();
         }));
         disposable.Add(GameManager.Instance.turnBeginSubject.Subscribe(turn =>
         {
+            if (tickType == GameDefine.BuffTickType.Turn)
+                Tick();
             OnTurnBegins();
         }));
         disposable.Add(target.beforeAttackSubject.Subscribe(OnBeforeAttack));

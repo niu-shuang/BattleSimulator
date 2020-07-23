@@ -9,8 +9,8 @@ public class SummonedCharacter : CharacterLogic
     /// 存活时间，N turn
     /// </summary>
     public int aliveTime { get; private set; }
-    private int initTurn;
-    private CompositeDisposable disposable;
+    protected int initTurn;
+    protected CompositeDisposable disposable;
     public SummonedCharacter(int characterId, Vector2Int pos, string name, int maxHp, Team team, int atk, int def, GameDefine.CharacterType characterType, int dodgeRate, int aliveTime) : base(characterId, pos, name, maxHp, team, atk, def, characterType, dodgeRate)
     {
         disposable = new CompositeDisposable();
@@ -18,7 +18,7 @@ public class SummonedCharacter : CharacterLogic
         initTurn = GameManager.Instance.turn;
         if(aliveTime > 0)
         {
-            disposable.Add(GameManager.Instance.turnEndSubject.Subscribe(turn =>
+            disposable.Add(GameManager.Instance.turnBeginSubject.Subscribe(turn =>
             {
                 if (turn - initTurn == aliveTime)
                 {
@@ -31,6 +31,16 @@ public class SummonedCharacter : CharacterLogic
         {
             if (isDead) Die();
         }));
+    }
+
+    protected virtual void AutoAttack()
+    {
+        if(baseATK > 0)
+        {
+            var target = GameManager.Instance.GetAttackTarget(team.GetOpposite(), pos.x);
+            if(target != null)
+                Attack(target);
+        }
     }
 
     private void Die()

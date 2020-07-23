@@ -20,15 +20,16 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
     private List<SkillBase> team1Skills;
     private List<SkillBase> team2Skills;
 
-    private ReactiveCollection<SkillBase> team1CardPool;
-    private ReactiveCollection<SkillBase> team2CardPool;
-    private ReactiveCollection<SkillBase> currentDeckTeam1;
-    private ReactiveCollection<SkillBase> currentDeckTeam2;
-    private ReactiveCollection<SkillBase> team1UsedCardPool;
-    private ReactiveCollection<SkillBase> team2UsedCardPool;
+    public ReactiveCollection<SkillBase> team1CardPool;
+    public ReactiveCollection<SkillBase> team2CardPool;
+    public ReactiveCollection<SkillBase> currentDeckTeam1;
+    public ReactiveCollection<SkillBase> currentDeckTeam2;
+    public ReactiveCollection<SkillBase> team1UsedCardPool;
+    public ReactiveCollection<SkillBase> team2UsedCardPool;
     private CompositeDisposable disposable;
     private Team currentTeam;
     private bool cardAdded = false;
+
 
     public void Init()
     {
@@ -56,8 +57,6 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
                 }
                 cardAdded = true;
             }
-
-
             GenerateDeck(team1CardPool, currentDeckTeam1, team1UsedCardPool);
             GenerateDeck(team2CardPool, currentDeckTeam2, team2UsedCardPool);
             ShowDeck(currentTeam);
@@ -119,6 +118,26 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
             usedCardPoolCount.text = team2UsedCardPool.Count.ToString();
         }
     }
+
+    public void PickSkill(Team team)
+    {
+        var currentDeck = team == Team.Team1 ? currentDeckTeam1 : currentDeckTeam2;
+        var usedCard = team == Team.Team1 ? team1UsedCardPool : team2UsedCardPool;
+        var cardPool = team == Team.Team1 ? team1CardPool : team2CardPool;
+        int rand = 0;
+        if(cardPool.Count == 0)
+        {
+            rand = Random.Range(0, usedCard.Count);
+            var tempCard = usedCard[rand];
+            usedCard.Remove(tempCard);
+            cardPool.Add(tempCard);
+        }
+        rand = Random.Range(0, cardPool.Count);
+        var card = cardPool[rand];
+        currentDeck.Add(card);
+        cardPool.Remove(card);
+    }
+
 
     private void GenerateDeck(ReactiveCollection<SkillBase> cardPool, ReactiveCollection<SkillBase> deck, ReactiveCollection<SkillBase> usedCardPool)
     {

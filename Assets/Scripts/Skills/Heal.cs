@@ -20,7 +20,6 @@ public class Heal : SkillBase
         base.Cast(targetPos, team);
         HealInfo healInfo = new HealInfo(caster, caster, (int)(caster.maxHp.Value * healPercentage / 1000f));
         healInfo.DoHeal();
-        OnCastSuc();
-        return true;
+        return base.Cast(targetPos, team);
     }
 }
