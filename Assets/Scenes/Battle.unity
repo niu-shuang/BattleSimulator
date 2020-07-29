@@ -1052,7 +1052,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1228,7 +1228,7 @@ MonoBehaviour:
   icon: {fileID: 2061610687}
   hpBar: {fileID: 1595996899}
   infoText: {fileID: 947100319}
-  infoTextAnimation: {fileID: 947100317}
+  infoTextRect: {fileID: 947100315}
 --- !u!114 &159391155
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1993,7 +1993,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -2458,7 +2458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -3099,7 +3099,7 @@ MonoBehaviour:
   icon: {fileID: 1040514465}
   hpBar: {fileID: 688218954}
   infoText: {fileID: 561840760}
-  infoTextAnimation: {fileID: 561840758}
+  infoTextRect: {fileID: 561840756}
 --- !u!114 &391248410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3384,7 +3384,7 @@ MonoBehaviour:
   icon: {fileID: 1494211729}
   hpBar: {fileID: 1008411707}
   infoText: {fileID: 1913186262}
-  infoTextAnimation: {fileID: 1913186260}
+  infoTextRect: {fileID: 1913186258}
 --- !u!114 &445496323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3638,7 +3638,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -4070,7 +4070,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -4574,7 +4574,7 @@ MonoBehaviour:
   icon: {fileID: 137070791}
   hpBar: {fileID: 855024831}
   infoText: {fileID: 327910105}
-  infoTextAnimation: {fileID: 327910103}
+  infoTextRect: {fileID: 327910101}
 --- !u!114 &673250262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4886,7 +4886,7 @@ MonoBehaviour:
   icon: {fileID: 1730075116}
   hpBar: {fileID: 1114962413}
   infoText: {fileID: 1695836193}
-  infoTextAnimation: {fileID: 1695836191}
+  infoTextRect: {fileID: 1695836189}
 --- !u!114 &696295486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5201,7 +5201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6354,7 +6354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6475,7 +6475,7 @@ MonoBehaviour:
   icon: {fileID: 1825223950}
   hpBar: {fileID: 1854219779}
   infoText: {fileID: 738840088}
-  infoTextAnimation: {fileID: 738840086}
+  infoTextRect: {fileID: 738840084}
 --- !u!114 &965474063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8326,7 +8326,7 @@ MonoBehaviour:
   icon: {fileID: 23605217}
   hpBar: {fileID: 1932699416}
   infoText: {fileID: 144144948}
-  infoTextAnimation: {fileID: 144144946}
+  infoTextRect: {fileID: 144144944}
 --- !u!114 &1169336149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8733,7 +8733,7 @@ MonoBehaviour:
   icon: {fileID: 1307069437}
   hpBar: {fileID: 1512395429}
   infoText: {fileID: 1402464088}
-  infoTextAnimation: {fileID: 1402464086}
+  infoTextRect: {fileID: 1402464084}
 --- !u!114 &1243429150
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9770,7 +9770,7 @@ MonoBehaviour:
   icon: {fileID: 1512491424}
   hpBar: {fileID: 1138218353}
   infoText: {fileID: 1539837144}
-  infoTextAnimation: {fileID: 1539837142}
+  infoTextRect: {fileID: 1539837140}
 --- !u!114 &1336722658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10155,7 +10155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -10744,7 +10744,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -11159,7 +11159,7 @@ MonoBehaviour:
   icon: {fileID: 109653141}
   hpBar: {fileID: 29577371}
   infoText: {fileID: 271829302}
-  infoTextAnimation: {fileID: 271829300}
+  infoTextRect: {fileID: 271829298}
 --- !u!114 &1506419480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11726,7 +11726,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12204,7 +12204,7 @@ MonoBehaviour:
   icon: {fileID: 1927909725}
   hpBar: {fileID: 1027637593}
   infoText: {fileID: 1454074901}
-  infoTextAnimation: {fileID: 1454074899}
+  infoTextRect: {fileID: 1454074897}
 --- !u!114 &1626692611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12492,7 +12492,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -13698,7 +13698,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -13840,7 +13840,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7264151, g: 0.16104485, b: 0.16104485, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -14525,7 +14525,7 @@ MonoBehaviour:
   icon: {fileID: 1331772732}
   hpBar: {fileID: 1022823160}
   infoText: {fileID: 1885214710}
-  infoTextAnimation: {fileID: 1885214708}
+  infoTextRect: {fileID: 1885214706}
 --- !u!114 &2075785392
 MonoBehaviour:
   m_ObjectHideFlags: 0

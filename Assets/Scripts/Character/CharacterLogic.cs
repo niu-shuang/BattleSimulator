@@ -28,7 +28,7 @@ public class CharacterLogic
 
     public ReactiveProperty<bool> isDead;
 
-    public Subject<string> info;
+    public Subject<CharacterLog> info;
 
     public Subject<AttackInfo> beforeAttackSubject;
     public Subject<AttackInfo> afterAttackSubject;
@@ -69,7 +69,7 @@ public class CharacterLogic
         this.dodgeRateModifier = new Modifier(dodgeRate);
         this.hitRateModifier = new Modifier(GameDefine.PERCENTAGE_MAX);
         this.isDead = new ReactiveProperty<bool>(false);
-        this.info = new Subject<string>();
+        this.info = new Subject<CharacterLog>();
         this.skills = new List<SkillBase>();
         this.buffs = new List<BuffBase>();
         this.characterType = characterType;
@@ -147,7 +147,8 @@ public class CharacterLogic
         if (finalDamage > Hp.Value) finalDamage = Hp.Value;
         hpModifier.AddValueDirectly(-finalDamage);
         GameLogger.AddLog($"{name}(Id{characterId}) receive {finalDamage} damage");
-        info.OnNext($"-{finalDamage}");
+        CharacterLog log = new CharacterLog() { type = CharacterLogType.Damage, value = finalDamage, info = string.Empty };
+        info.OnNext(log);
     }
 
     public void Heal(HealInfo healInfo)
@@ -161,7 +162,8 @@ public class CharacterLogic
         }
         hpModifier.AddValueDirectly(finalHeal);
         GameLogger.AddLog($"{name}(Id{characterId}) get {finalHeal} heal");
-        info.OnNext($"+{finalHeal}");
+        CharacterLog log = new CharacterLog() { type = CharacterLogType.Heal, value = finalHeal, info = string.Empty };
+        info.OnNext(log);
     }
 }
 
@@ -169,4 +171,17 @@ public enum Team
 {
     Team1,
     Team2
+}
+
+public enum CharacterLogType
+{
+    Damage,
+    Heal,
+}
+
+public struct CharacterLog
+{
+    public CharacterLogType type;
+    public int value;
+    public string info;
 }

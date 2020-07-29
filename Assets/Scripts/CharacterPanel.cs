@@ -41,13 +41,14 @@ public class CharacterPanel : MonoBehaviour
         });
     }
 
+    /*
     private async UniTask DoNextTurnAnimation()
     {  
         nextTurnText.color = new Color(nextTurnText.color.r, nextTurnText.color.g, nextTurnText.color.b, 1);
         await UniTask.Delay(250);
         nextTurnText.DOFade(0, .25f);
         await UniTask.Delay(250);
-    }
+    }*/
 
     public void SetChara(CharacterLogic character)
     {
