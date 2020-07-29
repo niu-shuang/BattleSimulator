@@ -51,6 +51,7 @@ public class CharacterLogic
 
     private CompositeDisposable disposable;
 
+
     public CharacterLogic(int characterId, Vector2Int pos, string name, int maxHp, Team team, int atk, int def, GameDefine.CharacterType characterType, int dodgeRate)
     {
         this.characterId = characterId;

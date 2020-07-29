@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class CharacterInfo
 {
     public int characterId;
+    public string script;
     public string characterName;
     public string icon;
     public int hp;

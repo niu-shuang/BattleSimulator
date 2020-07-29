@@ -19,6 +19,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         SelectChara,      //选择角色
         Attack,　　　　　 //选择攻击对象
         SpecSkill,             //选择施法对象
+        EnemyAttack,      //敌方自动攻击
         EndTurn           //结束turn
     }
 
@@ -95,48 +96,54 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         foreach (var item in team1Info)
         {
             GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), item.Value.characterType);
-            CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team1, item.Value.atk, item.Value.def, type, item.Value.dodgeRate);
+            Type scriptType = Type.GetType(item.Value.script);
+            object[] args = new object[] { item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team1, item.Value.atk, item.Value.def, type, item.Value.dodgeRate };
+            CharacterLogic script = Activator.CreateInstance(scriptType, args) as CharacterLogic;
+            //CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team1, item.Value.atk, item.Value.def, type, item.Value.dodgeRate);
             foreach (var skillId in item.Value.skills)
             {
                 if (skillId > 0)
                 {
-                    var skill = SkillsImporter.LoadSkill(skillId, logic);
+                    var skill = SkillsImporter.LoadSkill(skillId, script);
                     skillCardManager.AddSkill(skill, Team.Team1);
                 }
             }
             Sprite sprite = Resources.Load<Sprite>($"Icons/{ item.Value.icon }");
-            characterIcons[logic] = sprite;
-            this.team1.Add(logic);
-            team1[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(logic, sprite);
+            characterIcons[script] = sprite;
+            this.team1.Add(script);
+            team1[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(script, sprite);
         }
         foreach (var item in team2Info)
         {
             GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), item.Value.characterType);
-            CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def, type, item.Value.dodgeRate);
+            Type scriptType = Type.GetType(item.Value.script);
+            object[] args = new object[] { item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def, type, item.Value.dodgeRate };
+            CharacterLogic script = Activator.CreateInstance(scriptType, args) as CharacterLogic;
+            //CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def, type, item.Value.dodgeRate);
             foreach (var skillId in item.Value.skills)
             {
                 if (skillId > 0)
                 {
-                    var skill = SkillsImporter.LoadSkill(skillId, logic);
+                    var skill = SkillsImporter.LoadSkill(skillId, script);
                     skillCardManager.AddSkill(skill, Team.Team2);
                 }
             }
             Sprite sprite = Resources.Load<Sprite>($"Icons/{ item.Value.icon }");
-            characterIcons[logic] = sprite;
-            this.team2.Add(logic);
-            team2[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(logic, sprite);
+            characterIcons[script] = sprite;
+            this.team2.Add(script);
+            team2[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(script, sprite);
         }
         SkillsImporter.Close();
         grids.Init(team1, team2);
         disposable.Add(phase.Subscribe(OnPhaseChanged));
         NextTurnProcess();
         
-        /*
+        
         Observable.Timer(TimeSpan.FromSeconds(2f))
             .Subscribe(_ =>
             {
                 OnClickGrid(new Vector2Int(0, 1), Team.Team1);
-            });*/
+            });
     }
 
     public void OnPhaseChanged(GamePhase phase)
@@ -155,11 +162,30 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             case GamePhase.SpecSkill:
                 info.text = "Select a target to spell";
                 break;
+            case GamePhase.EnemyAttack:
+                info.text = "Enemy Attack";
+                EnemyAttack();
+                break;
             case GamePhase.EndTurn:
+                info.text = "next turn processing";
+                NextTurnProcess();
                 break;
             default:
                 break;
         }
+    }
+
+    private async void EnemyAttack()
+    {
+        var deck = skillCardManager.currentDeckTeam2;
+        while(deck.Count > 0)
+        {
+            deck[0].Cast(Vector2Int.zero, Team.Team1);
+            deck[0].ClearView();
+            skillCardManager.OnUseSkill(deck[0]);
+            await UniTask.Delay(500);
+        }
+        phase.Value = GamePhase.EndTurn;
     }
 
     public void AddSummonCharacter(Team team, Vector2Int pos, CharacterInfo characterInfo, int aliveTime)
@@ -295,7 +321,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
     }
 
-    public async void NextTurnProcess()
+    public void OnClickNextTurn()
+    {
+        phase.Value = GamePhase.EnemyAttack;
+    }
+
+    private async void NextTurnProcess()
     {
         endTurnTasks.Clear();
         beginTurnTasks.Clear();

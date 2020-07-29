@@ -85,14 +85,15 @@ public static class CharacterImporter
         var cell = row.GetCell(0);
         if (cell == null) Debug.LogError("read charaName failed");
         info.characterName = row.GetCell(1).GetString();
-        info.icon = charaSheet.GetRow(1).GetCell(1).GetString();
-        info.hp = charaSheet.GetRow(2).GetCell(1).GetInt();
-        info.atk = charaSheet.GetRow(3).GetCell(1).GetInt();
-        info.def = charaSheet.GetRow(4).GetCell(1).GetInt();
-        info.characterType = charaSheet.GetRow(5).GetCell(1).GetString();
-        info.dodgeRate = charaSheet.GetRow(6).GetCell(1).GetInt();
+        info.script = charaSheet.GetRow(1).GetCell(1).GetString();
+        info.icon = charaSheet.GetRow(2).GetCell(1).GetString();
+        info.hp = charaSheet.GetRow(3).GetCell(1).GetInt();
+        info.atk = charaSheet.GetRow(4).GetCell(1).GetInt();
+        info.def = charaSheet.GetRow(5).GetCell(1).GetInt();
+        info.characterType = charaSheet.GetRow(6).GetCell(1).GetString();
+        info.dodgeRate = charaSheet.GetRow(7).GetCell(1).GetInt();
         List<int> skills = new List<int>();
-        int skillIndex = 7;
+        int skillIndex = 8;
         while(true)
         {
             if(charaSheet.GetRow(skillIndex) != null)
