@@ -99,6 +99,7 @@ public class CharacterLogic
             {
                 isDead.Value = true;
                 isTaunt.Value = false;
+                Debug.Log($"{name} dying");
                 info.OnCompleted();
                 beforeAttackSubject.OnCompleted();
                 afterAttackSubject.OnCompleted();
@@ -106,7 +107,12 @@ public class CharacterLogic
                 afterDamageSubject.OnCompleted();
                 beforeHealSubject.OnCompleted();
                 afterHealSubject.OnCompleted();
+                foreach (var item in buffs)
+                {
+                    item.ForceEndBuff();
+                }
                 disposable.Dispose();
+                Debug.Log($"{name} dead");
             }
         }));
     }

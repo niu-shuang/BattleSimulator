@@ -13,12 +13,14 @@ public class ModifyDef : BuffBase
     }
     protected override void OnCast()
     {
+        GameLogger.AddLog($"{target.name} defence rate changed by {rate/10}%");
         item = new Modifier.Item() { isMulti = true, value = rate };
         target.defModifier.AddItem(item);
     }
 
     protected override void EndBuff()
     {
+        GameLogger.AddLog($"{target.name} defence rate modifier removed");
         target.defModifier.RemoveItem(item);
     }
 }

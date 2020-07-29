@@ -93,6 +93,11 @@ public class BuffBase
         disposable.Dispose();
     }
 
+    public void ForceEndBuff()
+    {
+        EndBuff();
+    }
+
     protected void Tick()
     {
         if (!isPermanent)

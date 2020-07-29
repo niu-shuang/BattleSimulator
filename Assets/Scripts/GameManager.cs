@@ -9,6 +9,7 @@ using System.IO;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
@@ -25,8 +26,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public int turn { get; private set; }
     public Subject<int> turnEndSubject;
     public Subject<int> turnBeginSubject;
-    public List<UniTask> endTurnTasks;
-    public List<UniTask> beginTurnTasks;
+    public List<Func<UniTask>> endTurnTasks;
+    public List<Func<UniTask>> beginTurnTasks;
 
     private List<CharacterLogic> team1;
     private List<CharacterLogic> team2;
@@ -41,7 +42,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     private CharacterLogic currentChara;
     private SkillBase currentSkill;
-    private CompositeDisposable disposable;
     public List<ReactiveProperty<int>> mana;
     public List<ReactiveProperty<int>> maxMana;
 
@@ -49,13 +49,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     public Dictionary<CharacterLogic, Sprite> characterIcons;
 
+    private CompositeDisposable disposable;
+
     protected override void Awake()
     {
         base.Awake();
         turn = -1;
         turnEndSubject = new Subject<int>();
-        endTurnTasks = new List<UniTask>();
-        beginTurnTasks = new List<UniTask>();
+        endTurnTasks = new List<Func<UniTask>>();
+        beginTurnTasks = new List<Func<UniTask>>();
         turnBeginSubject = new Subject<int>();
         phase = new ReactiveProperty<GamePhase>(GamePhase.Prepare);
         team1 = new List<CharacterLogic>();
@@ -71,8 +73,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         tauntUnit[Team.Team1] = new List<CharacterLogic>();
         tauntUnit[Team.Team2] = new List<CharacterLogic>();
         skillCardManager.Init();
-        disposable = new CompositeDisposable();
         characterPanel.Init();
+        disposable = new CompositeDisposable();
     }
 
     public void OnClickImportCharacter()
@@ -128,17 +130,18 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         grids.Init(team1, team2);
         disposable.Add(phase.Subscribe(OnPhaseChanged));
         NextTurnProcess();
-        Observable.Timer(TimeSpan.FromSeconds(1f))
+        
+        /*
+        Observable.Timer(TimeSpan.FromSeconds(2f))
             .Subscribe(_ =>
             {
                 OnClickGrid(new Vector2Int(0, 1), Team.Team1);
-            });
-
+            });*/
     }
-
 
     public void OnPhaseChanged(GamePhase phase)
     {
+        Debug.Log($"phase : {phase}");
         switch (phase)
         {
             case GamePhase.Prepare:
@@ -299,13 +302,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         turnEndSubject.OnNext(turn);
         for (int i = 0; i < endTurnTasks.Count; i++)
         {
-            await endTurnTasks[i];
+            await endTurnTasks[i].Invoke();
         }
         turn++;
         turnBeginSubject.OnNext(turn);
         for (int i = 0; i < beginTurnTasks.Count; i++)
         {
-            await beginTurnTasks[i];
+            await beginTurnTasks[i].Invoke();
         }
         phase.Value = GamePhase.SelectChara;
         info.text = "Select a Chara";
@@ -335,12 +338,30 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             skillCardManager.OnUseSkill(skill);
         }
     }
+    public void EndGame()
+    {
+        SceneManager.LoadScene("EmptyScene");
+    }
 
     protected override void SingletonOnDestroy()
     {
         base.SingletonOnDestroy();
+        Debug.Log("End Game");
+        foreach (var item in team1)
+        {
+            item.Hp.Value = 0;
+        }
+        foreach (var item in team2)
+        {
+            item.Hp.Value = 0;
+        }
+        
+        endTurnTasks.Clear();
+        beginTurnTasks.Clear();
         turnEndSubject.OnCompleted();
         turnBeginSubject.OnCompleted();
+        characterPanel.Dispose();
         disposable.Dispose();
+        Debug.Log("GameManager Disposed");
     }
 }

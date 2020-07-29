@@ -17,11 +17,13 @@ public class HpUp : BuffBase
         item = new Modifier.Item() { isMulti = true, value = GameDefine.PERCENTAGE_MAX + upRate };
         target.maxHpModifier.AddItem(item);
         var addHpValue = target.maxHp.Value * (GameDefine.PERCENTAGE_MAX + upRate) / GameDefine.PERCENTAGE_MAX;
+        GameLogger.AddLog($"{target.name} hp changed by {upRate / 10}%");
         target.hpModifier.AddValueDirectly(addHpValue);
     }
 
     protected override void EndBuff()
     {
+        GameLogger.AddLog($"{target.name} hp modifier removed");
         target.maxHpModifier.RemoveItem(item);
         if(target.Hp.Value > target.maxHp.Value)
         {

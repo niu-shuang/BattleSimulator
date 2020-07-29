@@ -9,6 +9,7 @@ public class UnPerfectDodge : BuffBase
         var rand = Random.Range(0, GameDefine.PERCENTAGE_MAX);
         if(rand >= 500)
         {
+            GameLogger.AddLog($"{target.name} muted damage");
             info.damage = 0;
         }
     }

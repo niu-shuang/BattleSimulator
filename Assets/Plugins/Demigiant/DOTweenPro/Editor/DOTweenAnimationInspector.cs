@@ -1,4 +1,4 @@
-// Author: Daniele Giardini - http://www.demigiant.com
+﻿// Author: Daniele Giardini - http://www.demigiant.com
 // Created: 2015/03/12 16:03
 
 using System;
@@ -67,7 +67,7 @@ namespace DG.DOTweenEditor
                 typeof(SpriteRenderer),
 #endif
 #if true // UI_MARKER
-                typeof(Image), typeof(Text), typeof(RawImage),
+                typeof(Image), typeof(Text), typeof(RawImage), typeof(Graphic),
 #endif
                 typeof(Renderer),
             }},
@@ -77,7 +77,7 @@ namespace DG.DOTweenEditor
                 typeof(SpriteRenderer),
 #endif
 #if true // UI_MARKER
-                typeof(Image), typeof(Text), typeof(CanvasGroup), typeof(RawImage),
+                typeof(Image), typeof(Text), typeof(CanvasGroup), typeof(RawImage), typeof(Graphic),
 #endif
                 typeof(Renderer),
             }},
@@ -463,7 +463,7 @@ namespace DG.DOTweenEditor
                 _src.delay = EditorGUILayout.FloatField("Delay", _src.delay);
                 if (_src.delay < 0) _src.delay = 0;
                 _src.isIndependentUpdate = EditorGUILayout.Toggle("Ignore TimeScale", _src.isIndependentUpdate);
-                _src.easeType = EditorGUIUtils.FilteredEasePopup(_src.easeType);
+                _src.easeType = EditorGUIUtils.FilteredEasePopup("Ease", _src.easeType);
                 if (_src.easeType == Ease.INTERNAL_Custom) {
                     _src.easeCurve = EditorGUILayout.CurveField("   Ease Curve", _src.easeCurve);
                 }

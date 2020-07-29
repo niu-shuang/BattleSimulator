@@ -7,6 +7,7 @@ public class IncreaseAttack : BuffBase
     private const int atkPercentage = 1500;
     protected override void OnBeforeAttack(AttackInfo info)
     {
-        info.finalAtk = (int)(atkPercentage * (float)atkPercentage / GameDefine.PERCENTAGE_MAX);
+        GameLogger.AddLog($"{target.name} cause {atkPercentage / 10}% damage");
+        info.finalAtk = (int)(info.finalAtk * (float)atkPercentage / GameDefine.PERCENTAGE_MAX);
     }
 }

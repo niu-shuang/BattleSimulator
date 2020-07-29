@@ -15,6 +15,7 @@ public class CounterAttack : BuffBase
         var rand = Random.Range(0, GameDefine.PERCENTAGE_MAX);
         if(rand < counterRate)
         {
+            GameLogger.AddLog($"{target.name} counter attack");
             target.Attack(info.caster);
         }
     }

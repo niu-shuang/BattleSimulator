@@ -23,6 +23,7 @@ public class AllPropertyUp : BuffBase
         target.atkModifier.AddItem(atkUp);
         target.defModifier.AddItem(defUp);
         target.dodgeRateModifier.AddItem(dodgeRateUp);
+        GameLogger.AddLog($"{target.name} all property up");
     }
 
     protected override void EndBuff()
@@ -30,6 +31,7 @@ public class AllPropertyUp : BuffBase
         target.atkModifier.RemoveItem(atkUp);
         target.defModifier.RemoveItem(defUp);
         target.dodgeRateModifier.RemoveItem(dodgeRateUp);
+        GameLogger.AddLog($"{target.name} all property modifier removed");
         base.EndBuff();
     }
 }

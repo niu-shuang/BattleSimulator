@@ -1,7 +1,10 @@
-﻿using Sirenix.Utilities;
+﻿using Cysharp.Threading.Tasks;
+using Sirenix.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UIAnimation;
+using DG.Tweening;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,21 +23,30 @@ public class CharacterPanel : MonoBehaviour
     private Text characterDef;
     [SerializeField]
     private Text nextTurnText;
-    [SerializeField]
-    private UITweenSequence nextTurnAnimation;
+    //[SerializeField]
+    //public UITweenSequence nextTurnAnimation;
     [SerializeField]
     private Text manaText;
 
     private CompositeDisposable disposable;
+    private IDisposable turnBeginTaskDisposable;
 
     public void Init()
     {
         disposable = new CompositeDisposable();
-        GameManager.Instance.turnBeginSubject.Subscribe(turn =>
+        turnBeginTaskDisposable = GameManager.Instance.turnBeginSubject.Subscribe(turn =>
         {
-            nextTurnText.text = $"Turn {turn} Start";
-            GameManager.Instance.beginTurnTasks.Add(nextTurnAnimation.Play());
+            nextTurnText.text = $"Turn {turn}";
+            //GameManager.Instance.beginTurnTasks.Add(()=> DoNextTurnAnimation());
         });
+    }
+
+    private async UniTask DoNextTurnAnimation()
+    {  
+        nextTurnText.color = new Color(nextTurnText.color.r, nextTurnText.color.g, nextTurnText.color.b, 1);
+        await UniTask.Delay(250);
+        nextTurnText.DOFade(0, .25f);
+        await UniTask.Delay(250);
     }
 
     public void SetChara(CharacterLogic character)
@@ -64,5 +76,11 @@ public class CharacterPanel : MonoBehaviour
         }));
         SkillCardManager.Instance.ShowDeck(character.team);
         
+    }
+
+    public void Dispose()
+    {
+        disposable?.Dispose();
+        turnBeginTaskDisposable?.Dispose();
     }
 }

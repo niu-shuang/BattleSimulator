@@ -116,7 +116,7 @@ namespace UIAnimation
 				onComplete?.Invoke();
 			});
 			sequenceList.ForEach(i => i.Play());
-			await Task.Delay((int)(maxEndTime * 1000));
+			await new WaitUntil(()=>isPlaying == false);
 		}
 
 		public async UniTask PlayReverse(UnityAction onComplete = null, bool isInteractable = false, float delay = 0)

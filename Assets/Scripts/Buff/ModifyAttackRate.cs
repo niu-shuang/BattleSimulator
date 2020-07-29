@@ -13,12 +13,14 @@ public class ModifyAttackRate : BuffBase
     }
     protected override void OnCast()
     {
+        GameLogger.AddLog($"{target.name} attack up by {rate / 10}%");
         item = new Modifier.Item() { isMulti = true, value = GameDefine.PERCENTAGE_MAX + rate };
         target.atkModifier.AddItem(item);
     }
 
     protected override void EndBuff()
     {
+        GameLogger.AddLog($"{target.name} attack modifier removed");
         target.atkModifier.RemoveItem(item);
         base.EndBuff();
     }

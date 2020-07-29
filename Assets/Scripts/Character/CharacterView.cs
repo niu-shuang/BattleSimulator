@@ -52,6 +52,7 @@ public class CharacterView : MonoBehaviour
     {
         icon.color = new Color(0, 0, 0, 0);
         hpBar.transform.parent.gameObject.SetActive(false);
+        disposable?.Dispose();
     }
 
     private void Reset()

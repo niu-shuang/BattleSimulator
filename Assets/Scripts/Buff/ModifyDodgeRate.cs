@@ -15,11 +15,13 @@ public class ModifyDodgeRate : BuffBase
     protected override void OnCast()
     {
         item = new Modifier.Item() { isMulti = false, value = rate };
+        GameLogger.AddLog($"{target.name} dodge rate changed by {rate/10}%");
         target.dodgeRateModifier.AddItem(item);
     }
 
     protected override void EndBuff()
     {
+        GameLogger.AddLog($"{target.name} dodge rate modifier removed");
         target.dodgeRateModifier.RemoveItem(item);
     }
 }

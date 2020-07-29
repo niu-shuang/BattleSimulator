@@ -264,12 +264,15 @@ public partial class PopupManager : SingletonMonoBehaviour<PopupManager>
     /// </summary>
     public void OnEndScene()
     {
-        foreach (var item in _popupList.Values)
+        if(_popupList != null)
         {
-            Destroy(item.gameObject);
+            foreach (var item in _popupList.Values)
+            {
+                Destroy(item.gameObject);
+            }
+            _currentPopup = null;
+            _popupList.Clear();
         }
-        _currentPopup = null;
-        _popupList.Clear();
     }
 
     protected override void SingletonOnDestroy()
