@@ -1,13 +1,23 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
+using Cysharp.Threading.Tasks.Internal;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Cysharp.Threading.Tasks.Internal;
 using UnityEngine;
 
 namespace Cysharp.Threading.Tasks
 {
+    public enum DelayType
+    {
+        /// <summary>use Time.deltaTime.</summary>
+        DeltaTime,
+        /// <summary>Ignore timescale, use Time.unscaledDeltaTime.</summary>
+        UnscaledDeltaTime,
+        /// <summary>use Stopwatch.GetTimestamp().</summary>
+        Realtime
+    }
+
     public partial struct UniTask
     {
         public static YieldAwaitable Yield(PlayerLoopTiming timing = PlayerLoopTiming.Update)
@@ -19,6 +29,46 @@ namespace Cysharp.Threading.Tasks
         public static UniTask Yield(PlayerLoopTiming timing, CancellationToken cancellationToken)
         {
             return new UniTask(YieldPromise.Create(timing, cancellationToken, out var token), token);
+        }
+
+        /// <summary>
+        /// Similar as UniTask.Yield but guaranteed run on next frame.
+        /// </summary>
+        public static UniTask NextFrame(PlayerLoopTiming timing = PlayerLoopTiming.Update, CancellationToken cancellationToken = default)
+        {
+            return new UniTask(NextFramePromise.Create(timing, cancellationToken, out var token), token);
+        }
+
+        /// <summary>
+        /// Same as UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate).
+        /// </summary>
+        public static YieldAwaitable WaitForEndOfFrame()
+        {
+            return UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
+        }
+
+        /// <summary>
+        /// Same as UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, cancellationToken).
+        /// </summary>
+        public static UniTask WaitForEndOfFrame(CancellationToken cancellationToken)
+        {
+            return UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, cancellationToken);
+        }
+
+        /// <summary>
+        /// Same as UniTask.Yield(PlayerLoopTiming.FixedUpdate).
+        /// </summary>
+        public static YieldAwaitable WaitForFixedUpdate()
+        {
+            return UniTask.Yield(PlayerLoopTiming.FixedUpdate);
+        }
+
+        /// <summary>
+        /// Same as UniTask.Yield(PlayerLoopTiming.FixedUpdate, cancellationToken).
+        /// </summary>
+        public static UniTask WaitForFixedUpdate(CancellationToken cancellationToken)
+        {
+            return UniTask.Yield(PlayerLoopTiming.FixedUpdate, cancellationToken);
         }
 
         public static UniTask DelayFrame(int delayFrameCount, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken))
@@ -34,26 +84,44 @@ namespace Cysharp.Threading.Tasks
         public static UniTask Delay(int millisecondsDelay, bool ignoreTimeScale = false, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken))
         {
             var delayTimeSpan = TimeSpan.FromMilliseconds(millisecondsDelay);
-            if (delayTimeSpan < TimeSpan.Zero)
-            {
-                throw new ArgumentOutOfRangeException("Delay does not allow minus millisecondsDelay. millisecondsDelay:" + millisecondsDelay);
-            }
-
-            return (ignoreTimeScale)
-                ? new UniTask(DelayIgnoreTimeScalePromise.Create(delayTimeSpan, delayTiming, cancellationToken, out var token), token)
-                : new UniTask(DelayPromise.Create(delayTimeSpan, delayTiming, cancellationToken, out token), token);
+            return Delay(delayTimeSpan, ignoreTimeScale, delayTiming, cancellationToken);
         }
 
         public static UniTask Delay(TimeSpan delayTimeSpan, bool ignoreTimeScale = false, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var delayType = ignoreTimeScale ? DelayType.UnscaledDeltaTime : DelayType.DeltaTime;
+            return Delay(delayTimeSpan, delayType, delayTiming, cancellationToken);
+        }
+
+        public static UniTask Delay(int millisecondsDelay, DelayType delayType, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var delayTimeSpan = TimeSpan.FromMilliseconds(millisecondsDelay);
+            return Delay(delayTimeSpan, delayType, delayTiming, cancellationToken);
+        }
+
+        public static UniTask Delay(TimeSpan delayTimeSpan, DelayType delayType, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (delayTimeSpan < TimeSpan.Zero)
             {
                 throw new ArgumentOutOfRangeException("Delay does not allow minus delayTimeSpan. delayTimeSpan:" + delayTimeSpan);
             }
 
-            return (ignoreTimeScale)
-                ? new UniTask(DelayIgnoreTimeScalePromise.Create(delayTimeSpan, delayTiming, cancellationToken, out var token), token)
-                : new UniTask(DelayPromise.Create(delayTimeSpan, delayTiming, cancellationToken, out token), token);
+            switch (delayType)
+            {
+                case DelayType.UnscaledDeltaTime:
+                    {
+                        return new UniTask(DelayIgnoreTimeScalePromise.Create(delayTimeSpan, delayTiming, cancellationToken, out var token), token);
+                    }
+                case DelayType.Realtime:
+                    {
+                        return new UniTask(DelayRealtimePromise.Create(delayTimeSpan, delayTiming, cancellationToken, out var token), token);
+                    }
+                case DelayType.DeltaTime:
+                default:
+                    {
+                        return new UniTask(DelayPromise.Create(delayTimeSpan, delayTiming, cancellationToken, out var token), token);
+                    }
+            }
         }
 
         sealed class YieldPromise : IUniTaskSource, IPlayerLoopItem, ITaskPoolNode<YieldPromise>
@@ -63,7 +131,7 @@ namespace Cysharp.Threading.Tasks
 
             static YieldPromise()
             {
-                TaskPoolMonitor.RegisterSizeGetter(typeof(YieldPromise), () => pool.Size);
+                TaskPool.RegisterSizeGetter(typeof(YieldPromise), () => pool.Size);
             }
 
             CancellationToken cancellationToken;
@@ -142,13 +210,99 @@ namespace Cysharp.Threading.Tasks
                 cancellationToken = default;
                 return pool.TryPush(this);
             }
+        }
 
-            ~YieldPromise()
+        sealed class NextFramePromise : IUniTaskSource, IPlayerLoopItem, ITaskPoolNode<NextFramePromise>
+        {
+            static TaskPool<NextFramePromise> pool;
+            public NextFramePromise NextNode { get; set; }
+
+            static NextFramePromise()
             {
-                if (TryReturn())
+                TaskPool.RegisterSizeGetter(typeof(NextFramePromise), () => pool.Size);
+            }
+
+            int frameCount;
+            CancellationToken cancellationToken;
+            UniTaskCompletionSourceCore<AsyncUnit> core;
+
+            NextFramePromise()
+            {
+            }
+
+            public static IUniTaskSource Create(PlayerLoopTiming timing, CancellationToken cancellationToken, out short token)
+            {
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    GC.ReRegisterForFinalize(this);
+                    return AutoResetUniTaskCompletionSource.CreateFromCanceled(cancellationToken, out token);
                 }
+
+                if (!pool.TryPop(out var result))
+                {
+                    result = new NextFramePromise();
+                }
+
+                result.frameCount = PlayerLoopHelper.IsMainThread ? Time.frameCount : -1;
+                result.cancellationToken = cancellationToken;
+
+                TaskTracker.TrackActiveTask(result, 3);
+
+                PlayerLoopHelper.AddAction(timing, result);
+
+                token = result.core.Version;
+                return result;
+            }
+
+            public void GetResult(short token)
+            {
+                try
+                {
+                    core.GetResult(token);
+                }
+                finally
+                {
+                    TryReturn();
+                }
+            }
+
+            public UniTaskStatus GetStatus(short token)
+            {
+                return core.GetStatus(token);
+            }
+
+            public UniTaskStatus UnsafeGetStatus()
+            {
+                return core.UnsafeGetStatus();
+            }
+
+            public void OnCompleted(Action<object> continuation, object state, short token)
+            {
+                core.OnCompleted(continuation, state, token);
+            }
+
+            public bool MoveNext()
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    core.TrySetCanceled(cancellationToken);
+                    return false;
+                }
+
+                if (frameCount == Time.frameCount)
+                {
+                    return true;
+                }
+
+                core.TrySetResult(AsyncUnit.Default);
+                return false;
+            }
+
+            bool TryReturn()
+            {
+                TaskTracker.RemoveTracking(this);
+                core.Reset();
+                cancellationToken = default;
+                return pool.TryPush(this);
             }
         }
 
@@ -159,14 +313,15 @@ namespace Cysharp.Threading.Tasks
 
             static DelayFramePromise()
             {
-                TaskPoolMonitor.RegisterSizeGetter(typeof(DelayFramePromise), () => pool.Size);
+                TaskPool.RegisterSizeGetter(typeof(DelayFramePromise), () => pool.Size);
             }
 
+            int initialFrame;
             int delayFrameCount;
             CancellationToken cancellationToken;
 
             int currentFrameCount;
-            UniTaskCompletionSourceCore<object> core;
+            UniTaskCompletionSourceCore<AsyncUnit> core;
 
             DelayFramePromise()
             {
@@ -186,6 +341,7 @@ namespace Cysharp.Threading.Tasks
 
                 result.delayFrameCount = delayFrameCount;
                 result.cancellationToken = cancellationToken;
+                result.initialFrame = PlayerLoopHelper.IsMainThread ? Time.frameCount : -1;
 
                 TaskTracker.TrackActiveTask(result, 3);
 
@@ -230,13 +386,27 @@ namespace Cysharp.Threading.Tasks
                     return false;
                 }
 
-                if (currentFrameCount == delayFrameCount)
+                if (currentFrameCount == 0)
                 {
-                    core.TrySetResult(null);
+                    if (delayFrameCount == 0) // same as Yield
+                    {
+                        core.TrySetResult(AsyncUnit.Default);
+                        return false;
+                    }
+
+                    // skip in initial frame.
+                    if (initialFrame == Time.frameCount)
+                    {
+                        return true;
+                    }
+                }
+
+                if (++currentFrameCount >= delayFrameCount)
+                {
+                    core.TrySetResult(AsyncUnit.Default);
                     return false;
                 }
 
-                currentFrameCount++;
                 return true;
             }
 
@@ -249,14 +419,6 @@ namespace Cysharp.Threading.Tasks
                 cancellationToken = default;
                 return pool.TryPush(this);
             }
-
-            ~DelayFramePromise()
-            {
-                if (TryReturn())
-                {
-                    GC.ReRegisterForFinalize(this);
-                }
-            }
         }
 
         sealed class DelayPromise : IUniTaskSource, IPlayerLoopItem, ITaskPoolNode<DelayPromise>
@@ -266,10 +428,11 @@ namespace Cysharp.Threading.Tasks
 
             static DelayPromise()
             {
-                TaskPoolMonitor.RegisterSizeGetter(typeof(DelayPromise), () => pool.Size);
+                TaskPool.RegisterSizeGetter(typeof(DelayPromise), () => pool.Size);
             }
 
-            float delayFrameTimeSpan;
+            int initialFrame;
+            float delayTimeSpan;
             float elapsed;
             CancellationToken cancellationToken;
 
@@ -279,7 +442,7 @@ namespace Cysharp.Threading.Tasks
             {
             }
 
-            public static IUniTaskSource Create(TimeSpan delayFrameTimeSpan, PlayerLoopTiming timing, CancellationToken cancellationToken, out short token)
+            public static IUniTaskSource Create(TimeSpan delayTimeSpan, PlayerLoopTiming timing, CancellationToken cancellationToken, out short token)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -292,8 +455,9 @@ namespace Cysharp.Threading.Tasks
                 }
 
                 result.elapsed = 0.0f;
-                result.delayFrameTimeSpan = (float)delayFrameTimeSpan.TotalSeconds;
+                result.delayTimeSpan = (float)delayTimeSpan.TotalSeconds;
                 result.cancellationToken = cancellationToken;
+                result.initialFrame = PlayerLoopHelper.IsMainThread ? Time.frameCount : -1;
 
                 TaskTracker.TrackActiveTask(result, 3);
 
@@ -338,8 +502,16 @@ namespace Cysharp.Threading.Tasks
                     return false;
                 }
 
+                if (elapsed == 0.0f)
+                {
+                    if (initialFrame == Time.frameCount)
+                    {
+                        return true;
+                    }
+                }
+
                 elapsed += Time.deltaTime;
-                if (elapsed >= delayFrameTimeSpan)
+                if (elapsed >= delayTimeSpan)
                 {
                     core.TrySetResult(null);
                     return false;
@@ -352,18 +524,10 @@ namespace Cysharp.Threading.Tasks
             {
                 TaskTracker.RemoveTracking(this);
                 core.Reset();
-                delayFrameTimeSpan = default;
+                delayTimeSpan = default;
                 elapsed = default;
                 cancellationToken = default;
                 return pool.TryPush(this);
-            }
-
-            ~DelayPromise()
-            {
-                if (TryReturn())
-                {
-                    GC.ReRegisterForFinalize(this);
-                }
             }
         }
 
@@ -374,11 +538,12 @@ namespace Cysharp.Threading.Tasks
 
             static DelayIgnoreTimeScalePromise()
             {
-                TaskPoolMonitor.RegisterSizeGetter(typeof(DelayIgnoreTimeScalePromise), () => pool.Size);
+                TaskPool.RegisterSizeGetter(typeof(DelayIgnoreTimeScalePromise), () => pool.Size);
             }
 
             float delayFrameTimeSpan;
             float elapsed;
+            int initialFrame;
             CancellationToken cancellationToken;
 
             UniTaskCompletionSourceCore<object> core;
@@ -401,6 +566,7 @@ namespace Cysharp.Threading.Tasks
 
                 result.elapsed = 0.0f;
                 result.delayFrameTimeSpan = (float)delayFrameTimeSpan.TotalSeconds;
+                result.initialFrame = PlayerLoopHelper.IsMainThread ? Time.frameCount : -1;
                 result.cancellationToken = cancellationToken;
 
                 TaskTracker.TrackActiveTask(result, 3);
@@ -446,6 +612,14 @@ namespace Cysharp.Threading.Tasks
                     return false;
                 }
 
+                if (elapsed == 0.0f)
+                {
+                    if (initialFrame == Time.frameCount)
+                    {
+                        return true;
+                    }
+                }
+
                 elapsed += Time.unscaledDeltaTime;
                 if (elapsed >= delayFrameTimeSpan)
                 {
@@ -465,13 +639,103 @@ namespace Cysharp.Threading.Tasks
                 cancellationToken = default;
                 return pool.TryPush(this);
             }
+        }
 
-            ~DelayIgnoreTimeScalePromise()
+        sealed class DelayRealtimePromise : IUniTaskSource, IPlayerLoopItem, ITaskPoolNode<DelayRealtimePromise>
+        {
+            static TaskPool<DelayRealtimePromise> pool;
+            public DelayRealtimePromise NextNode { get; set; }
+
+            static DelayRealtimePromise()
             {
-                if (TryReturn())
+                TaskPool.RegisterSizeGetter(typeof(DelayRealtimePromise), () => pool.Size);
+            }
+
+            long delayTimeSpanTicks;
+            ValueStopwatch stopwatch;
+            CancellationToken cancellationToken;
+
+            UniTaskCompletionSourceCore<AsyncUnit> core;
+
+            DelayRealtimePromise()
+            {
+            }
+
+            public static IUniTaskSource Create(TimeSpan delayTimeSpan, PlayerLoopTiming timing, CancellationToken cancellationToken, out short token)
+            {
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    GC.ReRegisterForFinalize(this);
+                    return AutoResetUniTaskCompletionSource.CreateFromCanceled(cancellationToken, out token);
                 }
+
+                if (!pool.TryPop(out var result))
+                {
+                    result = new DelayRealtimePromise();
+                }
+
+                result.stopwatch = ValueStopwatch.StartNew();
+                result.delayTimeSpanTicks = delayTimeSpan.Ticks;
+                result.cancellationToken = cancellationToken;
+
+                TaskTracker.TrackActiveTask(result, 3);
+
+                PlayerLoopHelper.AddAction(timing, result);
+
+                token = result.core.Version;
+                return result;
+            }
+
+            public void GetResult(short token)
+            {
+                try
+                {
+                    core.GetResult(token);
+                }
+                finally
+                {
+                    TryReturn();
+                }
+            }
+
+            public UniTaskStatus GetStatus(short token)
+            {
+                return core.GetStatus(token);
+            }
+
+            public UniTaskStatus UnsafeGetStatus()
+            {
+                return core.UnsafeGetStatus();
+            }
+
+            public void OnCompleted(Action<object> continuation, object state, short token)
+            {
+                core.OnCompleted(continuation, state, token);
+            }
+
+            public bool MoveNext()
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    core.TrySetCanceled(cancellationToken);
+                    return false;
+                }
+
+                if (stopwatch.ElapsedTicks >= delayTimeSpanTicks)
+                {
+                    core.TrySetResult(AsyncUnit.Default);
+                    return false;
+                }
+
+                return true;
+            }
+
+            bool TryReturn()
+            {
+                TaskTracker.RemoveTracking(this);
+                core.Reset();
+                stopwatch = default;
+                cancellationToken = default;
+                return pool.TryPush(this);
             }
         }
     }

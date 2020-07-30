@@ -92,8 +92,12 @@ namespace Cysharp.Threading.Tasks
     {
         public static SynchronizationContext UnitySynchronizationContext => unitySynchronizationContetext;
         public static int MainThreadId => mainThreadId;
+        internal static string ApplicationDataPath => applicationDataPath;
+
+        public static bool IsMainThread => Thread.CurrentThread.ManagedThreadId == mainThreadId;
 
         static int mainThreadId;
+        static string applicationDataPath;
         static SynchronizationContext unitySynchronizationContetext;
         static ContinuationQueue[] yielders;
         static PlayerLoopRunner[] runners;
@@ -171,12 +175,43 @@ namespace Cysharp.Threading.Tasks
             return dest;
         }
 
+        static PlayerLoopSystem[] InsertUniTaskSynchronizationContext(PlayerLoopSystem loopSystem)
+        {
+            var loop = new PlayerLoopSystem
+            {
+                type = typeof(UniTaskSynchronizationContext),
+                updateDelegate = UniTaskSynchronizationContext.Run
+            };
+
+            // Remove items from previous initializations.
+            var source = loopSystem.subSystemList
+                .Where(ls => ls.type != typeof(UniTaskSynchronizationContext))
+                .ToArray();
+
+            var dest = new System.Collections.Generic.List<PlayerLoopSystem>(source);
+
+            var index = dest.FindIndex(x => x.type.Name == "ScriptRunDelayedTasks");
+            if (index == -1)
+            {
+                index = dest.FindIndex(x => x.type.Name == "UniTaskLoopRunnerUpdate");
+            }
+
+            dest.Insert(index + 1, loop);
+
+            return dest.ToArray();
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Init()
         {
             // capture default(unity) sync-context.
             unitySynchronizationContetext = SynchronizationContext.Current;
             mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            try
+            {
+                applicationDataPath = Application.dataPath;
+            }
+            catch { }
 
 #if UNITY_EDITOR && UNITY_2019_3_OR_NEWER
             // When domain reload is disabled, re-initialization is required when entering play mode; 
@@ -237,6 +272,8 @@ namespace Cysharp.Threading.Tasks
                     if (item != null) item.Run();
                 }
             }
+
+            UniTaskSynchronizationContext.Run();
         }
 
 #endif
@@ -284,6 +321,9 @@ namespace Cysharp.Threading.Tasks
                                                                   typeof(UniTaskLoopRunners.UniTaskLoopRunnerPostLateUpdate), runners[12] = new PlayerLoopRunner(PlayerLoopTiming.PostLateUpdate),
                                                                   typeof(UniTaskLoopRunners.UniTaskLoopRunnerLastPostLateUpdate), runners[13] = new PlayerLoopRunner(PlayerLoopTiming.LastPostLateUpdate));
 
+            // Insert UniTaskSynchronizationContext to Update loop
+            copyList[4].subSystemList = InsertUniTaskSynchronizationContext(copyList[4]);
+
             playerLoop.subSystemList = copyList;
             PlayerLoop.SetPlayerLoop(playerLoop);
         }
@@ -297,6 +337,56 @@ namespace Cysharp.Threading.Tasks
         {
             yielders[(int)timing].Enqueue(continuation);
         }
+
+        // Diagnostics helper
+
+#if UNITY_2019_3_OR_NEWER
+
+        public static void DumpCurrentPlayerLoop()
+        {
+            var playerLoop = UnityEngine.LowLevel.PlayerLoop.GetCurrentPlayerLoop();
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"PlayerLoop List");
+            foreach (var header in playerLoop.subSystemList)
+            {
+                sb.AppendFormat("------{0}------", header.type.Name);
+                sb.AppendLine();
+                foreach (var subSystem in header.subSystemList)
+                {
+                    sb.AppendFormat("{0}", subSystem.type.Name);
+                    sb.AppendLine();
+
+                    if (subSystem.subSystemList != null)
+                    {
+                        UnityEngine.Debug.LogWarning("More Subsystem:" + subSystem.subSystemList.Length);
+                    }
+                }
+            }
+
+            UnityEngine.Debug.Log(sb.ToString());
+        }
+
+        public static bool IsInjectedUniTaskPlayerLoop()
+        {
+            var playerLoop = UnityEngine.LowLevel.PlayerLoop.GetCurrentPlayerLoop();
+
+            foreach (var header in playerLoop.subSystemList)
+            {
+                foreach (var subSystem in header.subSystemList)
+                {
+                    if (subSystem.type == typeof(UniTaskLoopRunners.UniTaskLoopRunnerInitialization))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+#endif
+
     }
 }
 

@@ -1,6 +1,5 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-using Cysharp.Threading.Tasks.Linq;
 using System;
 using System.Threading;
 using UnityEngine;
@@ -103,6 +102,8 @@ namespace Cysharp.Threading.Tasks.Triggers
             }
 
             public T Current { get; private set; }
+            ITriggerHandler<T> ITriggerHandler<T>.Prev { get; set; }
+            ITriggerHandler<T> ITriggerHandler<T>.Next { get; set; }
 
             public UniTask<bool> MoveNextAsync()
             {
@@ -188,6 +189,9 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTaskCompletionSourceCore<T> core;
 
         internal CancellationToken CancellationToken => cancellationToken;
+
+        ITriggerHandler<T> ITriggerHandler<T>.Prev { get; set; }
+        ITriggerHandler<T> ITriggerHandler<T>.Next { get; set; }
 
         internal AsyncTriggerHandler(AsyncTriggerBase<T> trigger, bool callOnce)
         {
