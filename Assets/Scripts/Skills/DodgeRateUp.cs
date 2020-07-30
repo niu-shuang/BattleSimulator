@@ -7,7 +7,7 @@ public class DodgeRateUp : SkillBase
 {
     public int upRate { get; private set; }
     public int aliveTime { get; private set; }
-    public DodgeRateUp(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public DodgeRateUp(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

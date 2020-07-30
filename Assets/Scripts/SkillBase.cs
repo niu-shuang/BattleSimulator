@@ -15,9 +15,21 @@ public abstract class SkillBase
     /// </summary>
     public CharacterLogic caster { get; private set; }
 
+    public SkillType skillType { get; private set; }
+
+    public enum SkillType
+    {
+        SelectableAttack,
+        UnSelectableAttack,
+        Summon,
+        Buff,
+        Heal
+    }
+
     public string description { get; protected set; }
 
     public int cost { get; private set; }
+    private int baseCost;
     private int castTurn;
 
     private SkillCardView view;
@@ -27,15 +39,17 @@ public abstract class SkillBase
 
     public bool canCast => GameManager.Instance.mana[(int)caster.team].Value - cost >= 0 && !caster.isStun;
 
-    public SkillBase(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description)
+    public SkillBase(int id, string skillName, SkillType skillType , int cost, bool selectable, CharacterLogic caster, string description)
     {
         this.id = id;
         this.skillName = skillName;
+        this.skillType = skillType;
         this.selectable = selectable;
         this.caster = caster;
         this.cost = cost;
         this.description = description;
         this.casted = false;
+        baseCost = cost;
         disposable = new CompositeDisposable();
         castTurn = -1;
     }
@@ -48,9 +62,15 @@ public abstract class SkillBase
         return true;
     }
 
+    public void SetCostFree()
+    {
+        cost = 0;
+    }
+
     public void Reset()
     {
         casted = false;
+        cost = baseCost;
         disposable.Dispose();
         disposable = new CompositeDisposable();
     }

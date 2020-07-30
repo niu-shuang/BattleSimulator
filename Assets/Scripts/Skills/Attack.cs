@@ -7,7 +7,7 @@ using UnityEngine;
 public class Attack : SkillBase
 {
     public int atkPercentage { get; private set; }
-    public Attack(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public Attack(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
         this.description = description;
     }

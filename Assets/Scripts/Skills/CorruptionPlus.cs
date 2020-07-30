@@ -7,7 +7,7 @@ public class CorruptionPlus : SkillBase
 {
     public int defDownRate { get; private set; }
     public int hpDownRate { get; private set; }
-    public CorruptionPlus(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public CorruptionPlus(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

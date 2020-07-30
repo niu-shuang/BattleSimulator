@@ -6,7 +6,7 @@ using UnityEngine;
 public class UpgradeMechanical : SkillBase
 {
     public int upgradePercentage { get; private set; }
-    public UpgradeMechanical(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public UpgradeMechanical(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

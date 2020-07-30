@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class DroneTaunt : SkillBase
 {
-    public DroneTaunt(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public DroneTaunt(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

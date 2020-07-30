@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class SummonDroneAll : SummonDrone
 {
-    public SummonDroneAll(int id, string skillName, int coolDown, bool selectable, CharacterLogic caster, string description) : base(id, skillName, coolDown, selectable, caster, description)
+    public SummonDroneAll(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

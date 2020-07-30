@@ -13,7 +13,7 @@ public class SummonSmallDrone : SkillBase
     public int inheritHpRate { get; private set; }
     public int inheriteAtkRate { get; private set; }
 
-    public SummonSmallDrone(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public SummonSmallDrone(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
         
     }

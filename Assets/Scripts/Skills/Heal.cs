@@ -6,7 +6,7 @@ using UnityEngine;
 public class Heal : SkillBase
 {
     public int healPercentage { get; private set; }
-    public Heal(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public Heal(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ConcussiveBomb : SkillBase
 {
-    public ConcussiveBomb(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public ConcussiveBomb(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

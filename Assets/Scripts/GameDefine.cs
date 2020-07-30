@@ -12,7 +12,7 @@ public class GameDefine
 
     public static int CARD_GENERATE_NUM = 5;
 
-    public static int SKILL_CUSTOM_PROPERTY_START_ROW = 6;
+    public static int SKILL_CUSTOM_PROPERTY_START_ROW = 7;
     
     /// <summary>
     /// 千分之单位的100%

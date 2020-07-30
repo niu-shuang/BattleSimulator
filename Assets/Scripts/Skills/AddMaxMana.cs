@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class AddMaxMana : SkillBase
 {
-    public AddMaxMana(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public AddMaxMana(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

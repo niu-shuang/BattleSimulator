@@ -7,7 +7,7 @@ public class SelfCounterAttack : SkillBase
 {
     public int counterRate { get; private set; }
     public int aliveTime { get; private set; }
-    public SelfCounterAttack(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public SelfCounterAttack(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

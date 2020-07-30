@@ -28,14 +28,16 @@ public static class SkillsImporter
     {
         ISheet sheet = workbooks[skillId / 10].GetSheet(skillId.ToString());
         string skillLogicScript = sheet.GetRow(1).GetCell(1).GetString();
-        Type skillType = Type.GetType(skillLogicScript);
+        Type skillScript = Type.GetType(skillLogicScript);
         string skillName = sheet.GetRow(2).GetCell(1).GetString();
-        int coolDown = sheet.GetRow(3).GetCell(1).GetInt();
-        bool selectable = sheet.GetRow(4).GetCell(1).GetBoolean();
-        string description = sheet.GetRow(5).GetCell(1).GetString();
+        string skillTypeString = sheet.GetRow(3).GetCell(1).GetString();
+        SkillBase.SkillType skillType = (SkillBase.SkillType)Enum.Parse(typeof(SkillBase.SkillType), skillTypeString);
+        int cost = sheet.GetRow(4).GetCell(1).GetInt();
+        bool selectable = sheet.GetRow(5).GetCell(1).GetBoolean();
+        string description = sheet.GetRow(6).GetCell(1).GetString();
         try
         {
-            SkillBase skill = Activator.CreateInstance(skillType, skillId, skillName, coolDown, selectable, character, description) as SkillBase;
+            SkillBase skill = Activator.CreateInstance(skillScript, skillId, skillName, skillType, cost, selectable, character, description) as SkillBase;
             skill.LoadCustomProperty(sheet);
             return skill;
         }

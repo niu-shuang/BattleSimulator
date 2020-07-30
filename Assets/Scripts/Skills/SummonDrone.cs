@@ -13,7 +13,7 @@ public class SummonDrone : SkillBase
 
     public int aliveTime { get; private set; }
 
-    public SummonDrone(int id, string skillName,int coolDown, bool selectable, CharacterLogic caster, string description) : base(id, skillName, coolDown, selectable, caster, description)
+    public SummonDrone(int id, string skillName, SkillType skillType,int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
 
     }

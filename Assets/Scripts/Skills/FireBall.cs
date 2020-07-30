@@ -4,7 +4,7 @@ using UnityEngine;
 public class FireBall : SkillBase
 {
     public int damage { get; private set; }
-    public FireBall(int id, string skillName, int coolDown, bool selectable, CharacterLogic caster, string description) : base(id, skillName, coolDown, selectable, caster, description)
+    public FireBall(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PickSkill : SkillBase
 {
-    public PickSkill(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public PickSkill(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 
@@ -28,13 +28,14 @@ public class PickSkill : SkillBase
         {
             var rand = Random.Range(0, tempDeck.Count);
             var targetCard = tempDeck[rand];
+            targetCard.ClearView();
             SkillCardManager.Instance.OnUseSkill(targetCard);
         }
         for(int i = 0; i < 2; i++)
         {
             SkillCardManager.Instance.PickSkill(caster.team);
         }
-        
+        SkillCardManager.Instance.ShowDeck(caster.team);
         return base.Cast(targetPos, team);
     }
 }

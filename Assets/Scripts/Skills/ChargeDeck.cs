@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ChargeDeck : SkillBase
 {
-    public ChargeDeck(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public ChargeDeck(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 
@@ -24,6 +24,7 @@ public class ChargeDeck : SkillBase
                 SkillCardManager.Instance.PickSkill(caster.team);
             }
         }
+        SkillCardManager.Instance.ShowDeck(caster.team);
         return base.Cast(targetPos, team);
     }
 }

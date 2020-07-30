@@ -7,7 +7,7 @@ public class SelfDefence : SkillBase
 {
     public int aliveTime { get; private set; }
     public int upRate { get; private set; }
-    public SelfDefence(int id, string skillName, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, cost, selectable, caster, description)
+    public SelfDefence(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 
