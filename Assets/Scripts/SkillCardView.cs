@@ -12,16 +12,21 @@ public class SkillCardView : MonoBehaviour
     private Image casterIcon;
     [SerializeField]
     private Text description;
+    [SerializeField]
+    private Text cardName;
     private SkillBase skill;
+    private bool canClick;
 
-    public void SetData(SkillBase skillLogic)
+    public void SetData(SkillBase skillLogic, bool canClick)
     {
         if(skillLogic.casted)
         {
             SetEmpty();
             return;
         }
+        this.canClick = canClick;
         gameObject.SetActive(true);
+        cardName.text = skillLogic.skillName;
         cost.text = $"Cost:{skillLogic.cost}";
         casterIcon.sprite = GameManager.Instance.characterIcons[skillLogic.caster];
         description.text = skillLogic.description;
@@ -31,7 +36,7 @@ public class SkillCardView : MonoBehaviour
 
     public void OnClick()
     {
-        if(skill != null && skill.canCast)
+        if(skill != null && skill.canCast && canClick)
         {
             GameManager.Instance.OnClickSkill(skill);
         } 

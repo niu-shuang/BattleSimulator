@@ -55,7 +55,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     protected override void Awake()
     {
         base.Awake();
-        turn = -1;
+        turn = 0;
         turnEndSubject = new Subject<int>();
         endTurnTasks = new List<Func<UniTask>>();
         beginTurnTasks = new List<Func<UniTask>>();
@@ -99,7 +99,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             Type scriptType = Type.GetType(item.Value.script);
             object[] args = new object[] { item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team1, item.Value.atk, item.Value.def, type, item.Value.dodgeRate };
             CharacterLogic script = Activator.CreateInstance(scriptType, args) as CharacterLogic;
-            //CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team1, item.Value.atk, item.Value.def, type, item.Value.dodgeRate);
             foreach (var skillId in item.Value.skills)
             {
                 if (skillId > 0)
@@ -188,24 +187,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         phase.Value = GamePhase.EndTurn;
     }
 
-    public void AddSummonCharacter(Team team, Vector2Int pos, CharacterInfo characterInfo, int aliveTime)
-    {
-        var existChara = GetCharacter(pos, team);
-        if (existChara != null)
-        {
-            grids.RemoveCharacter(pos, team);
-        }
-        GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), characterInfo.characterType);
-        SummonedCharacter character = new SummonedCharacter(-1, pos, characterInfo.characterName, characterInfo.hp, team, characterInfo.atk, characterInfo.def, type, characterInfo.dodgeRate, aliveTime);
-        if (team == Team.Team1)
-            team1.Add(character);
-        else
-            team2.Add(character);
-        Sprite sprite = Resources.Load<Sprite>($"Icons/{ characterInfo.icon }");
-        grids.AddCharacter(character, sprite, pos);
-
-    }
-
     public void AddSummonCharacter(CharacterLogic characterLogic, string icon)
     {
         var existChara = GetCharacter(characterLogic.pos, characterLogic.team);
@@ -269,7 +250,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                     var isSuc = currentSkill.Cast(pos, team);
                     if (isSuc)
                     {
-                        currentSkill.ClearView();
                         skillCardManager.OnUseSkill(currentSkill);
                     }
                     phase.Value = GamePhase.SelectChara;
@@ -365,7 +345,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             currentSkill.Cast(Vector2Int.zero, skill.caster.team);
             phase.Value = GamePhase.SelectChara;
-            skill.ClearView();
             skillCardManager.OnUseSkill(skill);
         }
     }

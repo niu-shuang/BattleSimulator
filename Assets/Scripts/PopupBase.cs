@@ -28,10 +28,13 @@ public class PopupBase : MonoBehaviour
     {
         state = new Subject<int>();
         gameObject.SetActive(true);
+        Observable.NextFrame()
+            .Subscribe(_ => OnAfterOpenPopup());
+        /*
         _animationSequence.Play(() =>
         {
             OnAfterOpenPopup();
-        }).Forget();
+        }).Forget();*/
         return state.LastOrDefault();
     }
 
@@ -56,11 +59,17 @@ public class PopupBase : MonoBehaviour
     public void ClosePopup(UnityAction callback)
     {
         OnBeforeClosePopup();
+        Observable.NextFrame()
+            .Subscribe(_ =>
+            {
+                gameObject.SetActive(false);
+                callback?.Invoke();
+            });
+        /*
         _animationSequence.PlayReverse(() =>
         {
-            gameObject.SetActive(false);
-            callback?.Invoke();
-        }).Forget();
+            
+        }).Forget();*/
     }
 
     /// <summary>

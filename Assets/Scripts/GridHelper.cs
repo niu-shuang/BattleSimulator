@@ -25,7 +25,7 @@ public class GridHelper : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 if (team2Grid[col + i * COL_NUM].hasCharacter)
                 {

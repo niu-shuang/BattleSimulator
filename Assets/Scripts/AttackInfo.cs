@@ -37,7 +37,7 @@ public class AttackInfo
         onAttack?.Invoke(this);
         GameLogger.AddLog($"{caster.name}(id : {caster.characterId}) deal {this.finalAtk} atk to {target.name}");
         DamageInfo damageInfo = new DamageInfo(this);
-        target.beforeDamageSubject?.OnNext(damageInfo);
+        
         if(this.damageType == GameDefine.DamageType.Physical)
         {
             if(!isHit())
@@ -51,11 +51,11 @@ public class AttackInfo
         {
             if(damage.damageType == GameDefine.DamageType.Physical)
             {
-                float defPercentage = 1 - GameDefine.GetDefPercentage(target.def.Value);
-                damageInfo.damage = (int)(damage.damage * defPercentage);
+                damageInfo.damage = (int)GameDefine.GetAttackFix(damage.damage, damageInfo.target.def.Value);
             }
         });
         damageInfo.InvokeDamageAction();
+        target.beforeDamageSubject?.OnNext(damageInfo);
         target.Damage(damageInfo);
         caster.afterAttackSubject?.OnNext(this);
         target.afterDamageSubject?.OnNext(damageInfo);

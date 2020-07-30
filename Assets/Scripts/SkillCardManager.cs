@@ -30,6 +30,8 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
     private Team currentTeam;
     private bool cardAdded = false;
 
+    private int registeredSkill;
+
 
     public void Init()
     {
@@ -41,6 +43,7 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
         team2UsedCardPool = new ReactiveCollection<SkillBase>();
         currentDeckTeam1 = new ReactiveCollection<SkillBase>();
         currentDeckTeam2 = new ReactiveCollection<SkillBase>();
+        registeredSkill = 0;
 
         disposable = new CompositeDisposable();
         disposable.Add(GameManager.Instance.turnBeginSubject.Subscribe(turn =>
@@ -49,16 +52,15 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
             {
                 foreach (var item in team1Skills)
                 {
-                    team1CardPool.Add(item.Clone());
+                    team1UsedCardPool.Add(item.Clone());
                 }
                 foreach (var item in team2Skills)
                 {
-                    team2CardPool.Add(item.Clone());
+                    team2UsedCardPool.Add(item.Clone());
                 }
                 cardAdded = true;
             }
-            GenerateDeck(team1CardPool, currentDeckTeam1, team1UsedCardPool);
-            GenerateDeck(team2CardPool, currentDeckTeam2, team2UsedCardPool);
+            GenerateDeck();
             ShowDeck(currentTeam);
         }));
         disposable.Add(GameManager.Instance.turnEndSubject.Subscribe(turn =>
@@ -86,13 +88,52 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
         for (int i = 0; i < skillCardViews.Count; i++)
         {
             if (i < currentDeck.Count)
-                skillCardViews[i].SetData(currentDeck[i]);
+                skillCardViews[i].SetData(currentDeck[i], true);
             else
                 skillCardViews[i].SetEmpty();
         }
         currentTeam = team;
         OnCardPoolCountChanged();
         OnUsedCardPoolCountChanged();
+    }
+
+    public void OnCharacterDead(CharacterLogic character)
+    {
+        var deck = character.team == Team.Team1 ? currentDeckTeam1 : currentDeckTeam2;
+        var cardPool = character.team == Team.Team1 ? team1CardPool : team2CardPool;
+        var usedCardPool = character.team == Team.Team1 ? team1UsedCardPool : team2UsedCardPool;
+        var cardToKeep = deck.Where(i => i.caster != character);
+        ReactiveCollection<SkillBase> newDeck = new ReactiveCollection<SkillBase>();
+        foreach (var item in cardToKeep)
+        {
+            newDeck.Add(item.Clone());
+        }
+        
+        ReactiveCollection<SkillBase> newCardPool = new ReactiveCollection<SkillBase>();
+        cardToKeep = cardPool.Where(i => i.caster != character);
+        foreach (var item in cardToKeep)
+        {
+            newCardPool.Add(item.Clone());
+        }
+        ReactiveCollection<SkillBase> newUsedCardPool = new ReactiveCollection<SkillBase>();
+        cardToKeep = usedCardPool.Where(i => i.caster != character);
+        foreach (var item in cardToKeep)
+        {
+            newUsedCardPool.Add(item);
+        }
+        if (character.team == Team.Team1)
+        {
+            currentDeckTeam1 = newDeck;
+            team1CardPool = newCardPool;
+            team1UsedCardPool = newUsedCardPool;
+        }
+        else
+        {
+            currentDeckTeam2 = newDeck;
+            team2CardPool = newCardPool;
+            team2UsedCardPool = newUsedCardPool;
+        }
+        ShowDeck(Team.Team1);
     }
 
     private void OnCardPoolCountChanged()
@@ -121,56 +162,88 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
 
     public void PickSkill(Team team)
     {
-        var currentDeck = team == Team.Team1 ? currentDeckTeam1 : currentDeckTeam2;
-        var usedCard = team == Team.Team1 ? team1UsedCardPool : team2UsedCardPool;
-        var cardPool = team == Team.Team1 ? team1CardPool : team2CardPool;
-        int rand = 0;
-        if(cardPool.Count == 0)
+        if(team == Team.Team1)
         {
-            rand = Random.Range(0, usedCard.Count);
-            var tempCard = usedCard[rand];
-            usedCard.Remove(tempCard);
-            cardPool.Add(tempCard);
+            if(team1CardPool.Count == 0)
+            {
+                team1CardPool = Shuffle(team1CardPool, team1UsedCardPool);
+            }
+                
+            var rand = Random.Range(0, team1CardPool.Count);
+            var card = team1CardPool[rand];
+            currentDeckTeam1.Add(card);
+            team1CardPool.Remove(card);
         }
-        rand = Random.Range(0, cardPool.Count);
-        var card = cardPool[rand];
-        currentDeck.Add(card);
-        cardPool.Remove(card);
+        else
+        {
+            if (team2CardPool.Count == 0)
+            {
+                team2CardPool = Shuffle(team2CardPool, team2UsedCardPool);
+            }
+                
+            var rand = Random.Range(0, team2CardPool.Count);
+            var card = team2CardPool[rand];
+            currentDeckTeam2.Add(card);
+            team2CardPool.Remove(card);
+        }
     }
 
 
-    private void GenerateDeck(ReactiveCollection<SkillBase> cardPool, ReactiveCollection<SkillBase> deck, ReactiveCollection<SkillBase> usedCardPool)
+    private void GenerateDeck()
     {
-        if (cardPool.Count < GameDefine.CARD_GENERATE_NUM)
         {
-            List<SkillBase> tempDeck = new List<SkillBase>();
-            for (int i = 0; i < GameDefine.CARD_GENERATE_NUM - cardPool.Count; i++)
+            var allCardNum = team1CardPool.Count + currentDeckTeam1.Count + team1UsedCardPool.Count;
+            var loopTime = GameDefine.CARD_GENERATE_NUM < allCardNum ? GameDefine.CARD_GENERATE_NUM : allCardNum;
+            for (int i = 0; i < loopTime; i++)
             {
-                if (usedCardPool.Count > 0)
+                if (team1CardPool.Count == 0)
                 {
-                    tempDeck.Add(usedCardPool[0].Clone());
-                    usedCardPool.RemoveAt(0);
+                    team1CardPool = Shuffle(team1UsedCardPool, team1CardPool);
+                    currentDeckTeam1.Add(team1CardPool[0]);
+                    team1CardPool.RemoveAt(0);
                 }
                 else
                 {
-                    break;
+                    currentDeckTeam1.Add(team1CardPool[0]);
+                    team1CardPool.RemoveAt(0);
                 }
             }
-            foreach (var item in tempDeck)
-            {
-                cardPool.Add(item);
-            }
         }
-
-        for (int i = 0; i < GameDefine.CARD_GENERATE_NUM; i++)
         {
-            if (cardPool.Count > 0)
+            var allCardNum = team2CardPool.Count + currentDeckTeam2.Count + team2UsedCardPool.Count;
+            var loopTime = GameDefine.CARD_GENERATE_NUM < allCardNum ? GameDefine.CARD_GENERATE_NUM : allCardNum;
+            for (int i = 0; i < loopTime; i++)
             {
-                int rand = Random.Range(0, cardPool.Count);
-                deck.Add(cardPool[rand]);
-                cardPool.RemoveAt(rand);
+                if (team2CardPool.Count == 0)
+                {
+                    team2CardPool = Shuffle(team2UsedCardPool, team2CardPool);
+                    currentDeckTeam2.Add(team2CardPool[0]);
+                    team2CardPool.RemoveAt(0);
+                }
+                else
+                {
+                    currentDeckTeam2.Add(team2CardPool[0]);
+                    team2CardPool.RemoveAt(0);
+                }
             }
+        }        
+    }
+
+    private ReactiveCollection<SkillBase> Shuffle(ReactiveCollection<SkillBase> usedCardPool, ReactiveCollection<SkillBase> cardPool)
+    {
+        ReactiveCollection<SkillBase> gen = new ReactiveCollection<SkillBase>();
+        while(usedCardPool.Count > 0)
+        {
+            var rand = Random.Range(0, usedCardPool.Count);
+            gen.Add(usedCardPool[rand].Clone());
+            usedCardPool.RemoveAt(rand);
         }
+        foreach (var item in cardPool)
+        {
+            gen.Add(item.Clone());
+        }
+        cardPool.Clear();
+        return gen;
     }
 
     public void OnUseSkill(SkillBase skill)
@@ -179,13 +252,22 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
         if (skill.caster.team == Team.Team1)
         {
             team1UsedCardPool.Add(skill);
-            currentDeckTeam1.Remove(skill);
+            var tempDeck = new ReactiveCollection<SkillBase>();
+            foreach (var item in currentDeckTeam1)
+            {
+                if(item != skill)
+                {
+                    tempDeck.Add(item);
+                }
+            }
+            currentDeckTeam1 = tempDeck;
         }
         else
         {
             team2UsedCardPool.Add(skill);
             currentDeckTeam2.Remove(skill);
         }
+        ShowDeck(Team.Team1);
     }
 
     public void AddSkill(SkillBase skill, Team team)
@@ -222,6 +304,11 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
         await PopupManager.Instance.ShowAsync(typeof(SkillCardsPopup));
         await PopupManager.Instance.HideAsync();
         popup.ClearView();
+    }
+
+    public int GetUniqueId()
+    {
+        return registeredSkill++;
     }
 
     protected override void SingletonOnDestroy()

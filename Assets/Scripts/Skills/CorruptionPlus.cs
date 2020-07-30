@@ -23,7 +23,7 @@ public class CorruptionPlus : SkillBase
         if (target.team != caster.team && target.characterType == GameDefine.CharacterType.Mechanical)
         {
             ModifyDef buff = new ModifyDef(GameDefine.PERCENTAGE_MAX - defDownRate);
-            buff.Init(target, caster, GameDefine.BuffTickType.Turn, false, 1);
+            buff.Init(target, caster, GameDefine.BuffTickType.Turn, false, 3);
             target.AddBuff(buff);
             var finalDamage = target.maxHpModifier.finalValue.Value * hpDownRate / GameDefine.PERCENTAGE_MAX;
             if(finalDamage > target.hpModifier.finalValue.Value)

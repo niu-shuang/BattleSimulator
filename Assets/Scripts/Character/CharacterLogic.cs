@@ -108,6 +108,7 @@ public class CharacterLogic
                 afterDamageSubject.OnCompleted();
                 beforeHealSubject.OnCompleted();
                 afterHealSubject.OnCompleted();
+                SkillCardManager.Instance.OnCharacterDead(this);
                 foreach (var item in buffs)
                 {
                     item.ForceEndBuff();

@@ -1,9 +1,11 @@
 ﻿using NPOI.SS.UserModel;
+using System.Runtime.CompilerServices;
 using UniRx;
 using UnityEngine;
 
 public abstract class SkillBase
 {
+    public int uniqueId { get; private set; }
     public int id { get; private set; }
     public string skillName { get; private set; }
     /// <summary>
@@ -51,6 +53,7 @@ public abstract class SkillBase
         this.casted = false;
         baseCost = cost;
         disposable = new CompositeDisposable();
+        uniqueId = SkillCardManager.Instance.GetUniqueId();
         castTurn = -1;
     }
 
@@ -90,5 +93,16 @@ public abstract class SkillBase
     public SkillBase Clone()
     {
         return this.MemberwiseClone() as SkillBase;
+    }
+
+    public static bool operator ==(SkillBase skill1, SkillBase skill2) => Object.Equals(skill1, skill2);
+    public static bool operator !=(SkillBase skill1, SkillBase skill2) => !Object.Equals(skill1, skill2);
+
+    public override bool Equals(object obj)
+    {
+        if (obj == null) return false;
+        if (!(obj is SkillBase)) return false;
+        SkillBase record = (SkillBase)obj;
+        return record.uniqueId == this.uniqueId;
     }
 }

@@ -21,7 +21,7 @@ public class SkillCardsPopup : PopupBase
         {
             GameObject go = Instantiate(skillCardPrefab, skillCardsRoot);
             var script = go.GetComponent<SkillCardView>();
-            script.SetData(item);
+            script.SetData(item, false);
             skillCards.Add(go);
         }
     }

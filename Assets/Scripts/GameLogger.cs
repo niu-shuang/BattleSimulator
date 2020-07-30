@@ -8,6 +8,8 @@ public class GameLogger : MonoBehaviour
 {
     [SerializeField]
     private Text output;
+    [SerializeField]
+    private Scrollbar scrollBar;
     private static GameLogger instance;
 
     private void Awake()
@@ -18,6 +20,7 @@ public class GameLogger : MonoBehaviour
     public static void AddLog(string log)
     {
         instance.output.text += log + Environment.NewLine;
+        instance.scrollBar.value = 0;
     }
 
     public static void ClearLog()
