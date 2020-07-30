@@ -283,12 +283,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     public List<CharacterLogic> GetCharacters(Team team)
     {
+        List<CharacterLogic> value = new List<CharacterLogic>();
         if (team == Team.Team1)
-            return team1;
+            value = team1.Where(i => !i.isDead.Value).ToList();
         else
-            return team2;
+            value = team2.Where(i => !i.isDead.Value).ToList();
+        return value;
     }
-
     public void OnClickCancel()
     {
         switch (phase.Value)

@@ -14,8 +14,6 @@ public class PopupBase : MonoBehaviour
     protected List<Button> buttons;
 
     public Subject<int> state;
-    [SerializeField]
-    protected UITweenSequence _animationSequence;
     protected int _backKeyButtonIndex = -1;
 
     public bool canUseBackKey { get; protected set; }
@@ -28,13 +26,7 @@ public class PopupBase : MonoBehaviour
     {
         state = new Subject<int>();
         gameObject.SetActive(true);
-        Observable.NextFrame()
-            .Subscribe(_ => OnAfterOpenPopup());
-        /*
-        _animationSequence.Play(() =>
-        {
-            OnAfterOpenPopup();
-        }).Forget();*/
+        OnAfterOpenPopup();
         return state.LastOrDefault();
     }
 
@@ -59,12 +51,9 @@ public class PopupBase : MonoBehaviour
     public void ClosePopup(UnityAction callback)
     {
         OnBeforeClosePopup();
-        Observable.NextFrame()
-            .Subscribe(_ =>
-            {
-                gameObject.SetActive(false);
-                callback?.Invoke();
-            });
+
+        gameObject.SetActive(false);
+        callback?.Invoke();
         /*
         _animationSequence.PlayReverse(() =>
         {
@@ -89,7 +78,7 @@ public class PopupBase : MonoBehaviour
     public async UniTask<Unit> ClosePopupAsync()
     {
         OnBeforeClosePopup();
-        await _animationSequence.PlayReverse();
+        //await _animationSequence.PlayReverse();
         gameObject.SetActive(false);
         return Unit.Default;
     }

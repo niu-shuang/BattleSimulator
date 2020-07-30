@@ -76,7 +76,7 @@ namespace UIAnimation
 					reversePlayList[0].list.Add(new Param(item, .2f));
 			}
 		}
-
+		/*
 		public async UniTask Play(UnityAction onComplete = null, bool isInteractable = false, float delay = 0)
 		{
 			sequenceList = new List<Sequence>();
@@ -160,7 +160,7 @@ namespace UIAnimation
 			sequenceList.ForEach(i => i.Play());
 
 			await Task.Delay((int)(maxEndTime*1000));
-		}
+		}*/
 
 		/*
         public IObservable<Unit> PlayAsObservable()
