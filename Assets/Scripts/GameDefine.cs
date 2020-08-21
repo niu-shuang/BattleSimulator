@@ -5,12 +5,10 @@ using UnityEngine;
 
 public class GameDefine
 {
-    public static float[] ATKMap = { 1.2f, 1f, .8f, .6f };
+    public static float[] ATKMap = { 1f, 1f, 1f, 1f };
     //public static float GetDefPercentage(int def) => def * .06f / (def * .06f + 1);
 
     public static float GetAttackFix(int atk, int def) => 300 * atk / (atk + 4 * def);
-
-    public static int DEFAULT_MANA_PER_TURN = 4;
 
     public static int CARD_GENERATE_NUM = 5;
 
@@ -39,6 +37,22 @@ public class GameDefine
         Physical,
         Magical,
     }
+
+    public static int INIT_MAX_MANA = 6;
+    public static int MAX_MANA_PER_TURN(int turn)
+    {
+        int value = INIT_MAX_MANA + turn - 1;
+        if (value > 15) value = 15;
+        return value;
+    }
+
+    public static int INIT_RECOVER_MANA = 3;
+    public static int RECOVER_MANA_PER_TURN(int turn)
+    {
+        int value = INIT_RECOVER_MANA + turn - 1;
+        if (value > 12) value = 12;
+        return value;
+    }
 }
 
 public static partial class BattleExtensionMethods
@@ -49,5 +63,22 @@ public static partial class BattleExtensionMethods
             return Team.Team2;
         else
             return Team.Team1;
+    }
+
+    public static string GetName(this GameDefine.CharacterType type)
+    {
+        string value = string.Empty;
+        switch (type)
+        {
+            case GameDefine.CharacterType.Biological:
+                value = "バイオ";
+                break;
+            case GameDefine.CharacterType.Mechanical:
+                value = "機械";
+                break;
+            default:
+                break;
+        }
+        return value;
     }
 }

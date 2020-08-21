@@ -14,7 +14,7 @@ public class CharacterPanel : MonoBehaviour
     [SerializeField]
     private Text characterName;
     [SerializeField]
-    private Text characterTeam;
+    private Text characterType;
     [SerializeField]
     private Text characterHp;
     [SerializeField]
@@ -55,7 +55,7 @@ public class CharacterPanel : MonoBehaviour
         disposable?.Dispose();
         disposable = new CompositeDisposable();
         characterName.text = character.name;
-        characterTeam.text = character.team.ToString();
+        characterType.text = character.characterType.GetName();
         disposable.Add(character.Hp.Subscribe(hp =>
         {
             characterHp.text = $"{hp} / {character.maxHp.Value}";
@@ -73,7 +73,7 @@ public class CharacterPanel : MonoBehaviour
         }));
         disposable.Add(GameManager.Instance.mana[(int)character.team].Subscribe(mana =>
         {
-            manaText.text = $"Mana: {mana}";
+            manaText.text = $"Mana: {mana}/{GameManager.Instance.maxMana[(int)character.team].Value}";
         }));
         SkillCardManager.Instance.ShowDeck(character.team);
         
