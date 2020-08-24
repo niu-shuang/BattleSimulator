@@ -40,6 +40,7 @@ public class CharacterLogic
     public Subject<HealInfo> afterHealSubject;
 
     public ReactiveProperty<bool> isTaunt;
+    public ReactiveProperty<bool> isBleeding;
 
     public bool isStun;
 
@@ -74,6 +75,7 @@ public class CharacterLogic
         this.buffs = new List<BuffBase>();
         this.characterType = characterType;
         this.isTaunt = new ReactiveProperty<bool>(false);
+        this.isBleeding = new ReactiveProperty<bool>(false);
         this.isStun = false;
         disposable = new CompositeDisposable();
 
@@ -85,7 +87,7 @@ public class CharacterLogic
         afterHealSubject = new Subject<HealInfo>();
         disposable.Add(isTaunt.Subscribe(taunt =>
         {
-            if(taunt)
+            if (taunt)
             {
                 GameManager.Instance.RegisterTauntUnit(this);
             }
@@ -157,7 +159,7 @@ public class CharacterLogic
         if (isDead.Value == true) return;
         int finalHeal = healInfo.finalHeal;
 
-        if(finalHeal + Hp.Value > maxHp.Value)
+        if (finalHeal + Hp.Value > maxHp.Value)
         {
             finalHeal = maxHp.Value - Hp.Value;
         }
