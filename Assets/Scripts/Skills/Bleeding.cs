@@ -28,14 +28,6 @@ public class Bleeding : SkillBase
             buff.Init(target, caster, GameDefine.BuffTickType.Turn, false, 3);
             caster.AddBuff(buff);
 
-            caster.beforeAttackSubject.Subscribe(attackInfo =>
-            {
-                attackInfo.finalAtk = (int)(attackInfo.finalAtk * LifeDownRate / 1000f);
-            });
-
-            // bleeding for the first time.
-            buff.Excute();
-
             return base.Cast(targetPos, team);
         }
         else

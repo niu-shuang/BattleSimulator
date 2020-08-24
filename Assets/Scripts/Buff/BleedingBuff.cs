@@ -15,6 +15,9 @@ public class BleedingBuff : BuffBase
         }
         GameLogger.AddLog($"{target.name} is bleeding now");
         target.isBleeding.Value = true;
+
+        Excute();
+        Tick();
     }
 
     protected override void EndBuff()
@@ -35,13 +38,15 @@ public class BleedingBuff : BuffBase
         {
             return;
         }
-        
-        caster.Attack(target);
+
+        Excute();
     }
 
     public void Excute()
     {
-        Tick();
-        OnTurnBegins();
+        int atk = (int)(caster.atkModifier.finalValue.Value * LifeDownRate / 1000f);
+        AttackInfo attackInfo = new AttackInfo(caster, target, atk, GameDefine.DamageType.Physical);
+        attackInfo.SetOnAttack(info => info.finalAtk = (int)(info.finalAtk * GameDefine.ATKMap[Mathf.Abs(target.pos.x - caster.pos.x)]));
+        attackInfo.DoDamage();
     }
 }
