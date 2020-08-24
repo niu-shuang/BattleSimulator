@@ -30,9 +30,6 @@ public class Bleeding : SkillBase
 
             return base.Cast(targetPos, team);
         }
-        else
-        {
-            return base.Cast(targetPos, team);
-        }
+        return false;
     }
 }
