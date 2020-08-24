@@ -64,11 +64,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         team1 = new List<CharacterLogic>();
         team2 = new List<CharacterLogic>();
         mana = new List<ReactiveProperty<int>>();
-        mana.Add(new ReactiveProperty<int>(GameDefine.DEFAULT_MANA_PER_TURN));
-        mana.Add(new ReactiveProperty<int>(GameDefine.DEFAULT_MANA_PER_TURN));
+        mana.Add(new ReactiveProperty<int>(0));
+        mana.Add(new ReactiveProperty<int>(0));
         maxMana = new List<ReactiveProperty<int>>();
-        maxMana.Add(new ReactiveProperty<int>(GameDefine.DEFAULT_MANA_PER_TURN));
-        maxMana.Add(new ReactiveProperty<int>(GameDefine.DEFAULT_MANA_PER_TURN));
+        maxMana.Add(new ReactiveProperty<int>(GameDefine.MAX_MANA_PER_TURN(1)));
+        maxMana.Add(new ReactiveProperty<int>(GameDefine.MAX_MANA_PER_TURN(1)));
         characterIcons = new Dictionary<CharacterLogic, Sprite>();
         tauntUnit = new Dictionary<Team, List<CharacterLogic>>();
         tauntUnit[Team.Team1] = new List<CharacterLogic>();
@@ -326,7 +326,10 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         info.text = "Select a Chara";
         for (int i = 0; i < 2; i++)
         {
-            mana[i].Value = maxMana[i].Value;
+            maxMana[i].Value = GameDefine.MAX_MANA_PER_TURN(turn);
+            int nextMana = mana[i].Value + GameDefine.RECOVER_MANA_PER_TURN(turn);
+            if (nextMana > maxMana[i].Value) nextMana = maxMana[i].Value;
+            mana[i].Value = nextMana;
         }
     }
 
