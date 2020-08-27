@@ -5,10 +5,12 @@ using NPOI.SS.UserModel;
 using NPOI.HSSF.UserModel;
 using System;
 using SFB;
+using UnityEngine.SceneManagement;
 
 public static class CharacterImporter
 {
     public static string path { get; private set; }
+    public static string configFilePath { get; private set; }
     public static void OpenExcel()
     {
         ExtensionFilter[] filter = new ExtensionFilter[1] { new ExtensionFilter("xls", "xls") };
@@ -19,15 +21,17 @@ public static class CharacterImporter
     {
         if (paths.Length < 1 || paths[0] != null)
         {
+            configFilePath = paths[0];
             path = Path.GetDirectoryName(paths[0]);
-            LoadExcel(paths[0]);
+            SceneManager.LoadScene("Battle");
         }
     }
 
-    private static void LoadExcel(string path)
+
+    public static void LoadExcel()
     {
-        Debug.Log("loading : " + path);
-        FileStream sheetFS = new FileStream(path, FileMode.Open, FileAccess.Read);
+        Debug.Log("loading : " + configFilePath);
+        FileStream sheetFS = new FileStream(configFilePath, FileMode.Open, FileAccess.Read);
         if (sheetFS == null) return;
         HSSFWorkbook workbook = new HSSFWorkbook(sheetFS);
         ISheet configSheet = workbook.GetSheet("Config");

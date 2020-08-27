@@ -52,9 +52,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     private CompositeDisposable disposable;
 
-    protected override void Awake()
+    private void Start()
     {
-        base.Awake();
         turn = 0;
         turnEndSubject = new Subject<int>();
         endTurnTasks = new List<Func<UniTask>>();
@@ -76,12 +75,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         skillCardManager.Init();
         characterPanel.Init();
         disposable = new CompositeDisposable();
+        CharacterImporter.LoadExcel();
     }
 
-    public void OnClickImportCharacter()
-    {
-        CharacterImporter.OpenExcel();
-    }
 
     public void OnImportCharacterSuc(Dictionary<Vector2Int, CharacterInfo> team1Info, Dictionary<Vector2Int, CharacterInfo> team2Info)
     {
@@ -354,7 +350,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     }
     public void EndGame()
     {
-        SceneManager.LoadScene("EmptyScene");
+        SceneManager.LoadScene("BattleResult");
     }
 
     protected override void SingletonOnDestroy()
