@@ -82,11 +82,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public void OnImportCharacterSuc(Dictionary<Vector2Int, CharacterInfo> team1Info, Dictionary<Vector2Int, CharacterInfo> team2Info)
     {
         PopupManager.Instance.Init();
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             SkillsImporter.OpenExcel(Path.Combine(CharacterImporter.path, $"Skills{i}.xls"));
         }
-        
+
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team1 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team2 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
         foreach (var item in team1Info)
@@ -132,8 +132,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         grids.Init(team1, team2);
         disposable.Add(phase.Subscribe(OnPhaseChanged));
         NextTurnProcess();
-        
-        
+
+
         Observable.Timer(TimeSpan.FromSeconds(2f))
             .Subscribe(_ =>
             {
@@ -173,7 +173,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private async void EnemyAttack()
     {
         var deck = skillCardManager.currentDeckTeam2;
-        while(deck.Count > 0)
+        while (deck.Count > 0)
         {
             deck[0].Cast(Vector2Int.zero, Team.Team1);
             deck[0].ClearView();
@@ -320,7 +320,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
         phase.Value = GamePhase.SelectChara;
         info.text = "Select a Chara";
-        for(int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             maxMana[i].Value = GameDefine.MAX_MANA_PER_TURN(turn);
             int nextMana = mana[i].Value + GameDefine.RECOVER_MANA_PER_TURN(turn);
@@ -365,7 +365,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             item.Hp.Value = 0;
         }
-        
+
         endTurnTasks.Clear();
         beginTurnTasks.Clear();
         turnEndSubject.OnCompleted();

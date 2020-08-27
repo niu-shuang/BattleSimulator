@@ -55,7 +55,11 @@ public class CharacterPanel : MonoBehaviour
         disposable?.Dispose();
         disposable = new CompositeDisposable();
         characterName.text = character.name;
-        characterType.text = character.characterType.GetName();
+        if (characterType != null)
+        {
+            characterType.text = character.characterType.GetName();
+        }
+
         disposable.Add(character.Hp.Subscribe(hp =>
         {
             characterHp.text = $"{hp} / {character.maxHp.Value}";
@@ -68,7 +72,7 @@ public class CharacterPanel : MonoBehaviour
         {
             characterDef.text = def.ToString();
         }));
-        disposable.Add(character.isDead.Subscribe(isDead=>
+        disposable.Add(character.isDead.Subscribe(isDead =>
         {
         }));
         disposable.Add(GameManager.Instance.mana[(int)character.team].Subscribe(mana =>
@@ -76,7 +80,7 @@ public class CharacterPanel : MonoBehaviour
             manaText.text = $"Mana: {mana}/{GameManager.Instance.maxMana[(int)character.team].Value}";
         }));
         SkillCardManager.Instance.ShowDeck(character.team);
-        
+
     }
 
     public void Dispose()
