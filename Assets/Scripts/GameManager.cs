@@ -10,6 +10,7 @@ using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using Sirenix.OdinInspector.Editor.Drawers;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
@@ -46,6 +47,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public List<ReactiveProperty<int>> mana;
     public List<ReactiveProperty<int>> maxMana;
 
+    public ReactiveProperty<int> team1AliveCount;
+    public ReactiveProperty<int> team2AliveCount;
+
     private Dictionary<Team, List<CharacterLogic>> tauntUnit;
 
     public Dictionary<CharacterLogic, Sprite> characterIcons;
@@ -74,8 +78,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         tauntUnit[Team.Team2] = new List<CharacterLogic>();
         skillCardManager.Init();
         characterPanel.Init();
+        team1AliveCount = new ReactiveProperty<int>(0);
+        team2AliveCount = new ReactiveProperty<int>(0);
         disposable = new CompositeDisposable();
         CharacterImporter.LoadExcel();
+        
     }
 
 
@@ -89,6 +96,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team1 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team2 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
+        
         foreach (var item in team1Info)
         {
             GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), item.Value.characterType);
@@ -107,7 +115,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             characterIcons[script] = sprite;
             this.team1.Add(script);
             team1[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(script, sprite);
+            team1AliveCount.Value++;
+            disposable.Add(script.isDead.Subscribe(dead =>
+            {
+                if (dead)
+                    team1AliveCount.Value--;
+            }));
         }
+
         foreach (var item in team2Info)
         {
             GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), item.Value.characterType);
@@ -127,7 +142,32 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             characterIcons[script] = sprite;
             this.team2.Add(script);
             team2[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(script, sprite);
+            team2AliveCount.Value++;
+            disposable.Add(script.isDead.Subscribe(dead =>
+            {
+                if (dead)
+                    team2AliveCount.Value--;
+            }));
+
         }
+        disposable.Add(team1AliveCount.Subscribe( count =>
+        {
+            Debug.Log("team 1 alive " + count);
+            if(count == 0)
+            {
+                BattleResult.battleResult = "Team 2 Win";
+                EndGame();
+            }
+        }));
+        disposable.Add(team2AliveCount.Subscribe(count =>
+        {
+            Debug.Log("team 2 alive " + count);
+            if(count == 0)
+            {
+                BattleResult.battleResult = "Team 1 Win";
+                EndGame();
+            }
+        }));
         SkillsImporter.Close();
         grids.Init(team1, team2);
         disposable.Add(phase.Subscribe(OnPhaseChanged));
@@ -357,14 +397,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     {
         base.SingletonOnDestroy();
         Debug.Log("End Game");
-        foreach (var item in team1)
-        {
-            item.Hp.Value = 0;
-        }
-        foreach (var item in team2)
-        {
-            item.Hp.Value = 0;
-        }
 
         endTurnTasks.Clear();
         beginTurnTasks.Clear();

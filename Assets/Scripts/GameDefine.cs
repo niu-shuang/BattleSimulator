@@ -29,7 +29,8 @@ public class GameDefine
     public enum CharacterType
     {
         Biological,
-        Mechanical
+        Mechanical,
+        Android
     }
 
     public enum DamageType

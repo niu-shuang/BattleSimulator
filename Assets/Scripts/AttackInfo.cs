@@ -11,6 +11,8 @@ public class AttackInfo
 
     public int baseAtk { get; private set; }
     public int finalAtk;
+    public int critRate { get; private set; }
+    public int criteDamageRate { get; private set; }
 
     public GameDefine.DamageType damageType { get; private set; }
 

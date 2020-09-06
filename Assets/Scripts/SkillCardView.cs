@@ -44,6 +44,7 @@ public class SkillCardView : MonoBehaviour
 
     public void SetEmpty()
     {
-        gameObject.SetActive(false);
+        if(gameObject != null)
+            gameObject.SetActive(false);
     }
 }

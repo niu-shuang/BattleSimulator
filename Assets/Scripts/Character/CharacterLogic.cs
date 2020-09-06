@@ -102,7 +102,6 @@ public class CharacterLogic
             {
                 isDead.Value = true;
                 isTaunt.Value = false;
-                Debug.Log($"{name} dying");
                 info.OnCompleted();
                 beforeAttackSubject.OnCompleted();
                 afterAttackSubject.OnCompleted();
