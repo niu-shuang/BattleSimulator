@@ -36,7 +36,7 @@ public static class CharacterImporter
         HSSFWorkbook workbook = new HSSFWorkbook(sheetFS);
         ISheet configSheet = workbook.GetSheet("Config");
         Dictionary<Vector2Int, CharacterInfo> team1 = new Dictionary<Vector2Int, CharacterInfo>();
-        Dictionary<Vector2Int, CharacterInfo> team2 = new Dictionary<Vector2Int, CharacterInfo>();
+        Dictionary<int, Dictionary<Vector2Int, CharacterInfo>> team2 = new Dictionary<int, Dictionary<Vector2Int, CharacterInfo>>();
         int index = 1;
         #region team1
         while (true)
@@ -72,9 +72,12 @@ public static class CharacterImporter
             string[] splited = posStr.Split(',');
             int x = int.Parse(splited[0].Substring(1));
             int y = int.Parse(splited[1].Substring(0, splited[1].Length - 1));
+            int wave = row.GetCell(4).GetInt();
             ISheet charaSheet = workbook.GetSheet(charaInfo.characterId.ToString());
             LoadCharacter(charaSheet, charaInfo);
-            team2[new Vector2Int(x, y)] = charaInfo;
+            if(!team2.ContainsKey(wave))
+                team2[wave] = new Dictionary<Vector2Int, CharacterInfo>();
+            team2[wave][new Vector2Int(x, y)] = charaInfo;
         }
         #endregion
         workbook.Close();

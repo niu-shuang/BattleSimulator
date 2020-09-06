@@ -24,6 +24,7 @@ public class CharacterView : MonoBehaviour
         icon.sprite = iconSprite;
         icon.color = Color.white;
         hpBar.transform.parent.gameObject.SetActive(true);
+        hpBar.fillAmount = 1;
         infoTextRect.localScale = Vector3.zero;
         disposable.Add(character.isDead.Subscribe(isDead =>
         {

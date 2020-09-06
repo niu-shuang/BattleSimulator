@@ -48,7 +48,7 @@ public class GridHelper : MonoBehaviour
         }
     }
 
-    public void Init(Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team1, Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team2)
+    public void Init(Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team1)
     {
         for (int i = 0; i < COL_NUM; i++)
         {
@@ -65,9 +65,22 @@ public class GridHelper : MonoBehaviour
                     team1Grid[currentIndex].SetEmpty(currentPos, Team.Team1);
                 }
 
-                if (team2.ContainsKey(currentPos))
+            }
+        }
+    }
+
+    public void AddEnemyWave(Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> enemies)
+    {
+        for (int i = 0; i < COL_NUM; i++)
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                Vector2Int currentPos = new Vector2Int(i, j);
+                int currentIndex = currentPos.x + currentPos.y * COL_NUM;
+
+                if (enemies.ContainsKey(currentPos))
                 {
-                    team2Grid[currentIndex].SetCharacter(team2[currentPos].Key, team2[currentPos].Value, currentPos, Team.Team2);
+                    team2Grid[currentIndex].SetCharacter(enemies[currentPos].Key, enemies[currentPos].Value, currentPos, Team.Team2);
                 }
                 else
                 {

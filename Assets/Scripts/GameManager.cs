@@ -11,6 +11,7 @@ using Cysharp.Threading.Tasks.Triggers;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector.Editor.Drawers;
+using System.Runtime.InteropServices;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
@@ -50,9 +51,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public ReactiveProperty<int> team1AliveCount;
     public ReactiveProperty<int> team2AliveCount;
 
+    private Dictionary<int, List<CharacterLogic>> enemyList;
+    private Dictionary<int, List<SkillBase>> enemySkills;
+
     private Dictionary<Team, List<CharacterLogic>> tauntUnit;
 
     public Dictionary<CharacterLogic, Sprite> characterIcons;
+    public int currentWave { get; private set; }
 
     private CompositeDisposable disposable;
 
@@ -80,19 +85,19 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         characterPanel.Init();
         team1AliveCount = new ReactiveProperty<int>(0);
         team2AliveCount = new ReactiveProperty<int>(0);
+        enemyList = new Dictionary<int, List<CharacterLogic>>();
+        enemySkills = new Dictionary<int, List<SkillBase>>();
         disposable = new CompositeDisposable();
+        currentWave = 1;
         CharacterImporter.LoadExcel();
         
     }
 
 
-    public void OnImportCharacterSuc(Dictionary<Vector2Int, CharacterInfo> team1Info, Dictionary<Vector2Int, CharacterInfo> team2Info)
+    public void OnImportCharacterSuc(Dictionary<Vector2Int, CharacterInfo> team1Info, Dictionary<int,Dictionary<Vector2Int, CharacterInfo>> team2Info)
     {
         PopupManager.Instance.Init();
-        for (int i = 0; i < 4; i++)
-        {
-            SkillsImporter.OpenExcel(Path.Combine(CharacterImporter.path, $"Skills{i}.xls"));
-        }
+        SkillsImporter.OpenExcel(Path.Combine(CharacterImporter.path, $"Skills.xls"));
 
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team1 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> team2 = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
@@ -123,32 +128,31 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             }));
         }
 
-        foreach (var item in team2Info)
+        foreach (var enemys in team2Info)
         {
-            GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), item.Value.characterType);
-            Type scriptType = Type.GetType(item.Value.script);
-            object[] args = new object[] { item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def, type, item.Value.dodgeRate };
-            CharacterLogic script = Activator.CreateInstance(scriptType, args) as CharacterLogic;
-            //CharacterLogic logic = new CharacterLogic(item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def, type, item.Value.dodgeRate);
-            foreach (var skillId in item.Value.skills)
+            int wave = enemys.Key;
+            enemySkills[wave] = new List<SkillBase>();
+            enemyList[wave] = new List<CharacterLogic>();
+            var enemyInfos = enemys.Value;
+            foreach (var item in enemyInfos)
             {
-                if (skillId > 0)
+                GameDefine.CharacterType type = (GameDefine.CharacterType)Enum.Parse(typeof(GameDefine.CharacterType), item.Value.characterType);
+                Type scriptType = Type.GetType(item.Value.script);
+                object[] args = new object[] { item.Value.characterId, item.Key, item.Value.characterName, item.Value.hp, Team.Team2, item.Value.atk, item.Value.def, type, item.Value.dodgeRate };
+                CharacterLogic script = Activator.CreateInstance(scriptType, args) as CharacterLogic;
+                enemyList[wave].Add(script);
+                foreach (var skillId in item.Value.skills)
                 {
-                    var skill = SkillsImporter.LoadSkill(skillId, script);
-                    skillCardManager.AddSkill(skill, Team.Team2);
+                    /*
+                    if (skillId > 0)
+                    {
+                        var skill = SkillsImporter.LoadSkill(skillId, script);
+                        enemySkills[wave].Add(skill);
+                    }*/
                 }
+                Sprite sprite = Resources.Load<Sprite>($"Icons/{ item.Value.icon }");
+                characterIcons[script] = sprite;
             }
-            Sprite sprite = Resources.Load<Sprite>($"Icons/{ item.Value.icon }");
-            characterIcons[script] = sprite;
-            this.team2.Add(script);
-            team2[item.Key] = new KeyValuePair<CharacterLogic, Sprite>(script, sprite);
-            team2AliveCount.Value++;
-            disposable.Add(script.isDead.Subscribe(dead =>
-            {
-                if (dead)
-                    team2AliveCount.Value--;
-            }));
-
         }
         disposable.Add(team1AliveCount.Subscribe( count =>
         {
@@ -162,14 +166,24 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         disposable.Add(team2AliveCount.Subscribe(count =>
         {
             Debug.Log("team 2 alive " + count);
+                       
             if(count == 0)
             {
-                BattleResult.battleResult = "Team 1 Win";
-                EndGame();
+                if (enemyList.Count > currentWave)
+                {
+                    currentWave++;
+                    PrepareForWave(currentWave);
+                }
+                else
+                {
+                    BattleResult.battleResult = "Team 1 Win";
+                    EndGame();
+                }   
             }
         }));
         SkillsImporter.Close();
-        grids.Init(team1, team2);
+        grids.Init(team1);
+        PrepareForWave(currentWave);
         disposable.Add(phase.Subscribe(OnPhaseChanged));
         NextTurnProcess();
 
@@ -179,6 +193,23 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             {
                 OnClickGrid(new Vector2Int(0, 1), Team.Team1);
             });
+    }
+
+    public void PrepareForWave(int wave)
+    {
+        Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> enemyTeam = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
+        foreach (var item in enemyList[wave - 1])
+        {
+            team2.Add(item);
+            enemyTeam[item.pos] = new KeyValuePair<CharacterLogic, Sprite>(item, characterIcons[item]);
+            team2AliveCount.Value++;
+            disposable.Add(item.isDead.Subscribe(dead =>
+            {
+                if (dead)
+                    team2AliveCount.Value--;
+            }));
+        }
+        grids.AddEnemyWave(enemyTeam);
     }
 
     public void OnPhaseChanged(GamePhase phase)
