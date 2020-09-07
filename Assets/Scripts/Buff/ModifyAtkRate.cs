@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IncreaseAttack : BuffBase
+public class ModifyAtkRate : BuffBase
 {
-    private const int atkPercentage = 1500;
+    public int atkPercentage { get; private set; }
+
+    public ModifyAtkRate(int atkPercentage)
+    {
+        this.atkPercentage = atkPercentage;
+    }
     protected override void OnBeforeAttack(AttackInfo info)
     {
         GameLogger.AddLog($"{target.name} cause {atkPercentage / 10}% damage");

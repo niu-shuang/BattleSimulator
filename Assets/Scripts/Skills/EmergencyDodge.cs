@@ -5,20 +5,20 @@ using UnityEngine;
 
 public class EmergencyDodge : SkillBase
 {
-    public int dodgeRate { get; private set; }
+    public int continuousTurn { get; private set; }
     public EmergencyDodge(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 
     public override void LoadCustomProperty(ISheet sheet)
     {
-        dodgeRate = sheet.GetRow(GameDefine.SKILL_CUSTOM_PROPERTY_START_ROW).GetCell(1).GetInt();
+        continuousTurn = sheet.GetRow(GameDefine.SKILL_CUSTOM_PROPERTY_START_ROW).GetCell(1).GetInt();
     }
 
     public override bool Cast(Vector2Int targetPos, Team team)
     {
         PerfectDodgeOnce buff = new PerfectDodgeOnce();
-        buff.Init(caster, caster, GameDefine.BuffTickType.Damage, false, 1);
+        buff.Init(caster, caster, GameDefine.BuffTickType.Damage, false, 1 , continuousTurn);
         return base.Cast(targetPos, team);
     }
 }

@@ -1,15 +1,13 @@
 ﻿using NPOI.SS.UserModel;
-using NPOI.Util;
-using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Courage : SkillBase
+public class Accumulation : SkillBase
 {
     public int continuousTurn { get; private set; }
     public int percentage { get; private set; }
-    public Courage(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
+    public Accumulation(int id, string skillName, SkillType skillType, int cost, bool selectable, CharacterLogic caster, string description) : base(id, skillName, skillType, cost, selectable, caster, description)
     {
     }
 
@@ -21,11 +19,12 @@ public class Courage : SkillBase
 
     public override bool Cast(Vector2Int targetPos, Team team)
     {
-        var target = GameManager.Instance.GetCharacter(targetPos, team);
+        var target = caster;
         if (target == null || target.team != caster.team) return false;
         ModifyAtkRate buff = new ModifyAtkRate(percentage);
         buff.Init(target, caster, GameDefine.BuffTickType.Turn, false, 3);
         target.AddBuff(buff);
         return base.Cast(targetPos, team);
     }
+
 }
