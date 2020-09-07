@@ -2,13 +2,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyType1 : CharacterLogic
+public class EnemyType1 : EnemyBase
 {
     public EnemyType1(int characterId, Vector2Int pos, string name, int maxHp, Team team, int atk, int def, GameDefine.CharacterType characterType, int dodgeRate) : base(characterId, pos, name, maxHp, team, atk, def, characterType, dodgeRate)
     {
-        ImmortalShield buff = new ImmortalShield(200);
-        buff.Init(this, this, GameDefine.BuffTickType.Turn, true, -1);
-        AddBuff(buff);
+        
     }
 
+    public override void AutoAttack()
+    {
+        var rand = Random.Range(0, skills.Count);
+        if(skills[rand] is Attack)
+        {
+            NormalAttack(skills[rand]);
+        }
+        else if(skills[rand] is DualAttack)
+        {
+            DualAttack(skills[rand]);
+        }
+    }
+
+    private void NormalAttack(SkillBase skill)
+    {
+        var target = GameManager.Instance.GetRandomAttackTarget(team.GetOpposite());
+        if(target != null)
+        {
+            skill.Cast(target.pos, team.GetOpposite());
+            skill.Reset();
+        }
+    }
+
+    private void DualAttack(SkillBase skill)
+    {
+        skill.Cast(Vector2Int.zero, team.GetOpposite());
+    }
 }

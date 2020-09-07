@@ -77,6 +77,9 @@ public static partial class BattleExtensionMethods
             case GameDefine.CharacterType.Mechanical:
                 value = "機械";
                 break;
+            case GameDefine.CharacterType.Android:
+                value = "アンドロイド";
+                break;
             default:
                 break;
         }

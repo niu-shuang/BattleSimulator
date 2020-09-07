@@ -10,6 +10,7 @@ public class DamageInfo
 
     public GameDefine.DamageType damageType { get; private set; }
     public int damage;
+    public bool isCrit;
 
     private Action<DamageInfo> onDamage;
 
@@ -19,6 +20,7 @@ public class DamageInfo
         target = attackInfo.target;
         damageType = attackInfo.damageType;
         damage = attackInfo.finalAtk;
+        isCrit = false;
     }
 
     public DamageInfo SetBeforeDamage(Action<DamageInfo> onDamageAction)

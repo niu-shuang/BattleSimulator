@@ -25,6 +25,7 @@ public class CharacterLogic
     public ReactiveProperty<int> dodgeRate => dodgeRateModifier.finalValue;
 
     public Modifier hitRateModifier { get; private set; }
+    public Modifier critRateModifier { get; private set; }
 
     public ReactiveProperty<bool> isDead;
 
@@ -69,6 +70,7 @@ public class CharacterLogic
         this.baseDodgeRate = dodgeRate;
         this.dodgeRateModifier = new Modifier(dodgeRate);
         this.hitRateModifier = new Modifier(GameDefine.PERCENTAGE_MAX);
+        this.critRateModifier = new Modifier(GameDefine.PERCENTAGE_MAX);
         this.isDead = new ReactiveProperty<bool>(false);
         this.info = new Subject<CharacterLog>();
         this.skills = new List<SkillBase>();
@@ -122,7 +124,8 @@ public class CharacterLogic
 
     public void AddSkill(SkillBase skill)
     {
-        skills.Add(skill);
+        if(!skills.Contains(skill))
+            skills.Add(skill);
     }
 
     public void AddBuff(BuffBase buff)
@@ -148,7 +151,10 @@ public class CharacterLogic
         if (finalDamage < 0) finalDamage = 0;
         if (finalDamage > Hp.Value) finalDamage = Hp.Value;
         hpModifier.AddValueDirectly(-finalDamage);
-        GameLogger.AddLog($"{name}(Id{characterId}) receive {finalDamage} damage");
+        if(damageInfo.isCrit)
+            GameLogger.AddLog($"{name}(Id{characterId}) receive {finalDamage}(Critical) damage");
+        else
+            GameLogger.AddLog($"{name}(Id{characterId}) receive {finalDamage} damage");
         CharacterLog log = new CharacterLog() { type = CharacterLogType.Damage, value = finalDamage, info = string.Empty };
         info.OnNext(log);
     }

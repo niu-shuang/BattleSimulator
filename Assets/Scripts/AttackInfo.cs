@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using UnityEngine;
 
 public class AttackInfo
 {
@@ -12,19 +8,24 @@ public class AttackInfo
     public int baseAtk { get; private set; }
     public int finalAtk;
     public int critRate { get; private set; }
-    public int criteDamageRate { get; private set; }
+    public int criteDamage { get; private set; }
+
+    public int hitRate { get; private set; }
 
     public GameDefine.DamageType damageType { get; private set; }
 
     private Action<AttackInfo> onAttack;
 
-    public AttackInfo(CharacterLogic caster, CharacterLogic target, int baseAtk, GameDefine.DamageType damageType)
+    public AttackInfo(CharacterLogic caster, CharacterLogic target, int baseAtk, GameDefine.DamageType damageType, int critRate = 0, int critDamage = 0, int hitRate = 1000)
     {
         this.caster = caster;
         this.target = target;
         this.baseAtk = baseAtk;
         this.finalAtk = baseAtk;
         this.damageType = damageType;
+        this.critRate = critRate;
+        this.criteDamage = critDamage;
+        this.hitRate = hitRate;
     }
 
     public AttackInfo SetOnAttack(Action<AttackInfo> onAttack)
@@ -49,6 +50,11 @@ public class AttackInfo
                 return;
             }
         }
+        if(isCrit())
+        {
+            damageInfo.isCrit = true;
+            damageInfo.damage = criteDamage;
+        }
         damageInfo.SetBeforeDamage(damage =>
         {
             if(damage.damageType == GameDefine.DamageType.Physical)
@@ -68,5 +74,16 @@ public class AttackInfo
         int hitRateRoll = UnityEngine.Random.Range(0, GameDefine.PERCENTAGE_MAX);
         int missRate = 1000 - caster.hitRateModifier.finalValue.Value;
         return hitRateRoll - target.dodgeRate.Value - missRate > 0;
+    }
+
+    /// <summary>
+    /// 技能自带的暴击率 * 人物的暴击率 >= roll点
+    /// </summary>
+    /// <returns></returns>
+    private bool isCrit()
+    {
+        int critRateRoll = UnityEngine.Random.Range(0, GameDefine.PERCENTAGE_MAX);
+        var modifiedCritRate = critRate * caster.critRateModifier.finalValue.Value / GameDefine.PERCENTAGE_MAX;
+        return modifiedCritRate - critRateRoll >= 0;
     }
 }

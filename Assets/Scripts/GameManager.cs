@@ -93,7 +93,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         
     }
 
-
+    /// <summary>
+    /// 导入角色成功
+    /// </summary>
+    /// <param name="team1Info"></param>
+    /// <param name="team2Info"></param>
     public void OnImportCharacterSuc(Dictionary<Vector2Int, CharacterInfo> team1Info, Dictionary<int,Dictionary<Vector2Int, CharacterInfo>> team2Info)
     {
         PopupManager.Instance.Init();
@@ -143,12 +147,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 enemyList[wave].Add(script);
                 foreach (var skillId in item.Value.skills)
                 {
-                    /*
+                    
                     if (skillId > 0)
                     {
                         var skill = SkillsImporter.LoadSkill(skillId, script);
-                        enemySkills[wave].Add(skill);
-                    }*/
+                        script.AddSkill(skill);
+                        //enemySkills[wave].Add(skill);
+                    }
                 }
                 Sprite sprite = Resources.Load<Sprite>($"Icons/{ item.Value.icon }");
                 characterIcons[script] = sprite;
@@ -163,7 +168,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 EndGame();
             }
         }));
-        disposable.Add(team2AliveCount.Subscribe(count =>
+        disposable.Add(team2AliveCount.Skip(1).Subscribe(count =>
         {
             Debug.Log("team 2 alive " + count);
                        
@@ -172,7 +177,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 if (enemyList.Count > currentWave)
                 {
                     currentWave++;
-                    PrepareForWave(currentWave);
+                    Observable.Return(Unit.Default)
+                        .Delay(TimeSpan.FromSeconds(.5f))
+                        .Subscribe(_=>
+                        {
+                            PrepareForWave(currentWave);
+                        });                   
                 }
                 else
                 {
@@ -195,10 +205,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             });
     }
 
+    /// <summary>
+    /// 添加一波次的敌人
+    /// </summary>
+    /// <param name="wave"></param>
     public void PrepareForWave(int wave)
     {
         Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>> enemyTeam = new Dictionary<Vector2Int, KeyValuePair<CharacterLogic, Sprite>>();
-        foreach (var item in enemyList[wave - 1])
+        foreach (var item in enemyList[wave])
         {
             team2.Add(item);
             enemyTeam[item.pos] = new KeyValuePair<CharacterLogic, Sprite>(item, characterIcons[item]);
@@ -243,13 +257,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     private async void EnemyAttack()
     {
-        var deck = skillCardManager.currentDeckTeam2;
-        while (deck.Count > 0)
+        foreach (var item in team2)
         {
-            deck[0].Cast(Vector2Int.zero, Team.Team1);
-            deck[0].ClearView();
-            skillCardManager.OnUseSkill(deck[0]);
-            await UniTask.Delay(500);
+            if(item.isDead.Value != true)
+            {
+                var enemy = item as EnemyBase;
+                enemy.AutoAttack();
+                await UniTask.Delay(500);
+            }
         }
         phase.Value = GamePhase.EndTurn;
     }
@@ -286,6 +301,26 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             return tauntUnit[team].FirstOrDefault();
         }
         return grids.GetAttackTarget(team, col);
+    }
+
+    public CharacterLogic GetRandomAttackTarget(Team team)
+    {
+        var targets = GetCharacters(team);
+        if(targets.Count > 0)
+        {
+            List<int> colHasCharas = new List<int>();
+            foreach (var item in targets)
+            {
+                if (!colHasCharas.Contains(item.pos.x))
+
+                {
+                    colHasCharas.Add(item.pos.x);
+                }
+            }
+            var rand = UnityEngine.Random.Range(0, colHasCharas.Count);
+            return GetAttackTarget(team, colHasCharas[rand]);
+        }
+        return null;
     }
 
     public void OnClickGrid(Vector2Int pos, Team team)
