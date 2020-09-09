@@ -4,19 +4,23 @@ using UnityEngine;
 
 public class CounterAttack : BuffBase
 {
-    public int counterRate { get; private set; }
+    public int atkPercentage { get; private set; }
+    public int hitRate { get; private set; }
+    public int critRate { get; private set; }
+    public int critDamageRate { get; private set; }
 
-    public CounterAttack(int counterRate)
+    public CounterAttack(int atkPercentage, int hitRate, int critRate, int critDamageRate)
     {
-        this.counterRate = counterRate;
+        this.atkPercentage = atkPercentage;
+        this.hitRate = hitRate;
+        this.critRate = critRate;
+        this.critDamageRate = critDamageRate;
     }
     protected override void OnAfterDamage(DamageInfo info)
     {
-        var rand = Random.Range(0, GameDefine.PERCENTAGE_MAX);
-        if(rand < counterRate)
-        {
-            GameLogger.AddLog($"{target.name} counter attack");
-            target.Attack(info.caster);
-        }
+        GameLogger.AddLog($"{target.name} counter attack");
+        var atk = target.atkModifier.finalValue.Value * atkPercentage / GameDefine.PERCENTAGE_MAX;
+        var critAtk = target.atkModifier.finalValue.Value * critDamageRate / GameDefine.PERCENTAGE_MAX;
+        AttackInfo atkInfo = new AttackInfo(target, info.caster, atk, GameDefine.DamageType.Physical, critRate, critAtk, hitRate);
     }
 }

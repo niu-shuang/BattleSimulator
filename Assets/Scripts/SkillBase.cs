@@ -62,6 +62,10 @@ public abstract class SkillBase
         castTurn = GameManager.Instance.turn;
         GameManager.Instance.mana[(int)caster.team].Value -= cost;
         casted = true;
+        if(skillType == SkillType.SelectableAttack || skillType == SkillType.UnSelectableAttack)
+        {
+            caster.isAttacked = true;
+        }
         return true;
     }
 

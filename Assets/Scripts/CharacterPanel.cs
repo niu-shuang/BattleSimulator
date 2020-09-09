@@ -36,7 +36,7 @@ public class CharacterPanel : MonoBehaviour
         disposable = new CompositeDisposable();
         turnBeginTaskDisposable = GameManager.Instance.turnBeginSubject.Subscribe(turn =>
         {
-            nextTurnText.text = $"Turn {turn}";
+            nextTurnText.text = $"Turn {turn}, Wave { GameManager.Instance.currentWave }";
             //GameManager.Instance.beginTurnTasks.Add(()=> DoNextTurnAnimation());
         });
     }

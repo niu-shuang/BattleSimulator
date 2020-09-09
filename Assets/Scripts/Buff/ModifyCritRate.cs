@@ -15,7 +15,7 @@ public class ModifyCritRate : BuffBase
     protected override void OnCast()
     {
         GameLogger.AddLog($"{target.name} crit rate up by {percentage / 10}%");
-        item = new Modifier.Item() { isMulti = false, value = percentage };
+        item = new Modifier.Item() { isMulti = true, value = percentage };
         target.critRateModifier.AddItem(item);
     }
 

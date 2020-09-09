@@ -27,6 +27,8 @@ public class CharacterLogic
     public Modifier hitRateModifier { get; private set; }
     public Modifier critRateModifier { get; private set; }
 
+    public Modifier critDamageRateModifier { get; private set; }
+
     public ReactiveProperty<bool> isDead;
 
     public Subject<CharacterLog> info;
@@ -51,6 +53,8 @@ public class CharacterLogic
 
     public GameDefine.CharacterType characterType { get; private set; }
 
+    public bool isAttacked;
+
     private CompositeDisposable disposable;
 
 
@@ -71,6 +75,7 @@ public class CharacterLogic
         this.dodgeRateModifier = new Modifier(dodgeRate);
         this.hitRateModifier = new Modifier(GameDefine.PERCENTAGE_MAX);
         this.critRateModifier = new Modifier(GameDefine.PERCENTAGE_MAX);
+        this.critDamageRateModifier = new Modifier(GameDefine.PERCENTAGE_MAX);
         this.isDead = new ReactiveProperty<bool>(false);
         this.info = new Subject<CharacterLog>();
         this.skills = new List<SkillBase>();
@@ -97,6 +102,10 @@ public class CharacterLogic
             {
                 GameManager.Instance.UnRegisterTauntUnit(this);
             }
+        }));
+        disposable.Add(GameManager.Instance.turnBeginSubject.Subscribe(_=>
+        {
+            isAttacked = false;
         }));
         disposable.Add(Hp.Subscribe(hp =>
         {
@@ -143,6 +152,21 @@ public class CharacterLogic
         AttackInfo attackInfo = new AttackInfo(this, target, atkModifier.finalValue.Value, GameDefine.DamageType.Physical);
         attackInfo.SetOnAttack(info => info.finalAtk = (int)(info.finalAtk * GameDefine.ATKMap[Mathf.Abs(target.pos.x - pos.x)]));
         attackInfo.DoDamage();
+    }
+
+    public virtual void AutoAttack()
+    {
+        if (!isAttacked && baseATK > 0)
+        {
+            var target = GameManager.Instance.GetAttackTarget(team.GetOpposite(), pos.x);
+            if (target != null)
+                Attack(target);
+            else
+            {
+                target = GameManager.Instance.GetRandomAttackTarget(team.GetOpposite());
+                Attack(target);
+            }
+        }
     }
 
     public void Damage(DamageInfo damageInfo)

@@ -27,7 +27,16 @@ public static class SkillsImporter
     public static SkillBase LoadSkill(int skillId, CharacterLogic character)
     {
         ISheet sheet = workbooks[0].GetSheet(skillId.ToString());
-        string skillLogicScript = sheet.GetRow(1).GetCell(1).GetString();
+        string skillLogicScript = string.Empty;
+        try
+        {
+            skillLogicScript = sheet.GetRow(1).GetCell(1).GetString();
+        }
+        catch(Exception ex)
+        {
+            Debug.LogError( "skill Id :" + skillId);
+        }
+
         Type skillScript = Type.GetType(skillLogicScript);
         string skillName = sheet.GetRow(2).GetCell(1).GetString();
         string skillTypeString = sheet.GetRow(3).GetCell(1).GetString();

@@ -24,7 +24,8 @@ public class HealAll : SkillBase
         }
         foreach (var item in targets)
         {
-            HealInfo healInfo = new HealInfo(caster, item, (int)(caster.maxHp.Value * healPercentage / 1000f));
+            if (item.characterType == GameDefine.CharacterType.Mechanical) continue;
+            HealInfo healInfo = new HealInfo(caster, item, (int)(item.maxHp.Value * healPercentage / GameDefine.PERCENTAGE_MAX));
             healInfo.DoHeal();
         }
         return base.Cast(targetPos, team);

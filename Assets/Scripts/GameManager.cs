@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using J;
 using System;
@@ -7,11 +6,9 @@ using UniRx;
 using UnityEngine.UI;
 using System.IO;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
 using System.Linq;
 using UnityEngine.SceneManagement;
-using Sirenix.OdinInspector.Editor.Drawers;
-using System.Runtime.InteropServices;
+
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
@@ -21,7 +18,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         SelectChara,      //选择角色
         Attack,　　　　　 //选择攻击对象
         SpecSkill,             //选择施法对象
-        EnemyAttack,      //敌方自动攻击
+        AutoAttack,      //敌方自动攻击
         EndTurn           //结束turn
     }
 
@@ -224,6 +221,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             }));
         }
         grids.AddEnemyWave(enemyTeam);
+        phase.Value = GamePhase.EndTurn;
     }
 
     public void OnPhaseChanged(GamePhase phase)
@@ -242,9 +240,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             case GamePhase.SpecSkill:
                 info.text = "Select a target to spell";
                 break;
-            case GamePhase.EnemyAttack:
-                info.text = "Enemy Attack";
-                EnemyAttack();
+            case GamePhase.AutoAttack:
+                info.text = "Auto Attack";
+                AutoAttack();
                 break;
             case GamePhase.EndTurn:
                 info.text = "next turn processing";
@@ -255,8 +253,16 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
     }
 
-    private async void EnemyAttack()
+    private async void AutoAttack()
     {
+        foreach (var item in team1)
+        {
+            if (item.isDead.Value != true)
+            {
+                item.AutoAttack();
+                await UniTask.Delay(500);
+            }
+        }
         foreach (var item in team2)
         {
             if(item.isDead.Value != true)
@@ -406,7 +412,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     public void OnClickNextTurn()
     {
-        phase.Value = GamePhase.EnemyAttack;
+        phase.Value = GamePhase.AutoAttack;
     }
 
     private async void NextTurnProcess()

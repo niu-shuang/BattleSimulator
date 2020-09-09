@@ -30,7 +30,7 @@ public class Threaten : SkillBase
         {
             var rand = Random.Range(0, targetList.Count);
             var target = targetList[rand];
-            ModifyDef buff = new ModifyDef(GameDefine.PERCENTAGE_MAX - 500);
+            ModifyDef buff = new ModifyDef(-500);
             buff.Init(target, caster, GameDefine.BuffTickType.Turn, false, aliveTime);
             target.AddBuff(buff);
             return base.Cast(targetPos, team);

@@ -14,15 +14,19 @@ public class EnemyType1 : EnemyBase
         var rand = Random.Range(0, skills.Count);
         if(skills[rand] is Attack)
         {
-            NormalAttack(skills[rand]);
+            PickRandomTargetAttack(skills[rand]);
         }
         else if(skills[rand] is DualAttack)
         {
-            DualAttack(skills[rand]);
+            UnSelectableSkill(skills[rand]);
+        }
+        else if(skills[rand] is SelfTaunt)
+        {
+            UnSelectableSkill(skills[rand]);
         }
     }
 
-    private void NormalAttack(SkillBase skill)
+    protected void PickRandomTargetAttack(SkillBase skill)
     {
         var target = GameManager.Instance.GetRandomAttackTarget(team.GetOpposite());
         if(target != null)
@@ -32,8 +36,9 @@ public class EnemyType1 : EnemyBase
         }
     }
 
-    private void DualAttack(SkillBase skill)
+    protected void UnSelectableSkill(SkillBase skill)
     {
         skill.Cast(Vector2Int.zero, team.GetOpposite());
+        skill.Reset();
     }
 }

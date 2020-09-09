@@ -17,8 +17,9 @@ public class Heal : SkillBase
 
     public override bool Cast(Vector2Int targetPos, Team team)
     {
-        base.Cast(targetPos, team);
-        HealInfo healInfo = new HealInfo(caster, caster, (int)(caster.maxHp.Value * healPercentage / 1000f));
+        var target = GameManager.Instance.GetCharacter(targetPos, team);
+        if (target == null || target.team != caster.team || target.characterType == GameDefine.CharacterType.Mechanical) return false;
+        HealInfo healInfo = new HealInfo(caster, target, (int)(target.maxHp.Value * healPercentage / GameDefine.PERCENTAGE_MAX));
         healInfo.DoHeal();
         return base.Cast(targetPos, team);
     }

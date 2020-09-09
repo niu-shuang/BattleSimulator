@@ -9,7 +9,7 @@ public class SmallDrone : SummonedCharacter
     {
         disposable.Add(GameManager.Instance.turnEndSubject.Subscribe(turn =>
         {
-            if (turn - initTurn <= aliveTime)
+            if (!isDead.Value)
             {
                 for(int i = 0; i < 3; i++)
                 {

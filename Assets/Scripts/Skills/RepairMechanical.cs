@@ -20,7 +20,7 @@ public class RepairMechanical : SkillBase
         if (team != caster.team) return false;
         var target = GameManager.Instance.GetCharacter(targetPos, caster.team);
         if (target.characterType != GameDefine.CharacterType.Mechanical) return false;
-        HealInfo healInfo = new HealInfo(caster, target, target.maxHpModifier.finalValue.Value * healPercentage / GameDefine.PERCENTAGE_MAX);
+        HealInfo healInfo = new HealInfo(caster, target, target.maxHp.Value * healPercentage / GameDefine.PERCENTAGE_MAX);
         healInfo.DoHeal();
         return base.Cast(targetPos, team);
     }

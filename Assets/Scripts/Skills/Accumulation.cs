@@ -21,7 +21,7 @@ public class Accumulation : SkillBase
     {
         var target = caster;
         if (target == null || target.team != caster.team) return false;
-        ModifyAtkRate buff = new ModifyAtkRate(percentage);
+        ModifyAttackRate buff = new ModifyAttackRate(percentage);
         buff.Init(target, caster, GameDefine.BuffTickType.Turn, false, 3);
         target.AddBuff(buff);
         return base.Cast(targetPos, team);

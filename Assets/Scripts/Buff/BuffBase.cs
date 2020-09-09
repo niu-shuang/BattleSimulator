@@ -2,7 +2,7 @@
 
 public class BuffBase
 {
-    public int aliveTime { get; private set; }
+    public int continuousTurn { get; private set; }
     public int overrideTurn { get; private set; }
     public int initTurn { get; private set; }
     public bool isPermanent { get; private set; }
@@ -11,13 +11,13 @@ public class BuffBase
     protected CharacterLogic caster;
     protected CompositeDisposable disposable;
 
-    public virtual void Init(CharacterLogic target, CharacterLogic caster, GameDefine.BuffTickType tickType, bool isPermanent, int aliveTime, int overrideTurn = -1)
+    public virtual void Init(CharacterLogic target, CharacterLogic caster, GameDefine.BuffTickType tickType, bool isPermanent, int continuousTurn, int overrideTurn = -1)
     {
         disposable = new CompositeDisposable();
         this.target = target;
         this.caster = caster;
         this.initTurn = GameManager.Instance.turn;
-        this.aliveTime = aliveTime;
+        this.continuousTurn = continuousTurn;
         this.isPermanent = isPermanent;
         this.tickType = tickType;
         this.overrideTurn = overrideTurn;
@@ -104,10 +104,10 @@ public class BuffBase
     {
         if (!isPermanent)
         {
-            aliveTime -= 1;
+            continuousTurn -= 1;
             if(overrideTurn > 0)
                 overrideTurn -= 1;
-            if (aliveTime <= 0 || overrideTurn == 0)
+            if (continuousTurn <= 0 || overrideTurn == 0)
             {
                 EndBuff();
             }

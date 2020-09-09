@@ -9,7 +9,7 @@ public class Gangster : SummonedCharacter
     {
         disposable.Add(GameManager.Instance.turnEndSubject.Subscribe(turn =>
         {
-            if (turn - initTurn <= aliveTime)
+            if (!isDead.Value)
             {
                 AutoAttack();
             }

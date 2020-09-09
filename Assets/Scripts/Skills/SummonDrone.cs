@@ -21,11 +21,11 @@ public class SummonDrone : SkillBase
     public override bool Cast(Vector2Int targetPos, Team team)
     {
         var pos = caster.pos + new Vector2Int(0, -1);
-        var hp = caster.baseHP * droneHp / GameDefine.PERCENTAGE_MAX;
-        var atk = caster.baseATK * droneAtk / GameDefine.PERCENTAGE_MAX;
-        var def = caster.baseDef * droneDef / GameDefine.PERCENTAGE_MAX;
+        var hp = droneHp;
+        var atk = droneAtk;
+        var def = droneDef;
 
-        Drone drone = new Drone(-1, pos, droneName, hp, caster.team, atk, def, GameDefine.CharacterType.Mechanical, caster.baseDodgeRate, aliveTime);
+        Drone drone = new Drone(-1, pos, droneName, hp, caster.team, atk, def, GameDefine.CharacterType.Mechanical, 0, aliveTime);
         GameManager.Instance.AddSummonCharacter(drone, droneIcon);
         return base.Cast(targetPos, team);
     }

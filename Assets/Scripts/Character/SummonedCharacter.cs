@@ -33,15 +33,6 @@ public class SummonedCharacter : CharacterLogic
         }));
     }
 
-    protected virtual void AutoAttack()
-    {
-        if(baseATK > 0)
-        {
-            var target = GameManager.Instance.GetAttackTarget(team.GetOpposite(), pos.x);
-            if(target != null)
-                Attack(target);
-        }
-    }
 
     private void Die()
     {

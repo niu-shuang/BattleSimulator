@@ -14,7 +14,7 @@ public class ModifyDef : BuffBase
     protected override void OnCast()
     {
         GameLogger.AddLog($"{target.name} defence rate changed by {rate/10}%");
-        item = new Modifier.Item() { isMulti = true, value = rate };
+        item = new Modifier.Item() { isMulti = true, value = GameDefine.PERCENTAGE_MAX + rate };
         target.defModifier.AddItem(item);
     }
 

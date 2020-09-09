@@ -14,7 +14,7 @@ public class ModifyDodgeRate : BuffBase
 
     protected override void OnCast()
     {
-        item = new Modifier.Item() { isMulti = false, value = rate };
+        item = new Modifier.Item() { isMulti = true, value = rate + GameDefine.PERCENTAGE_MAX };
         GameLogger.AddLog($"{target.name} dodge rate changed by {rate/10}%");
         target.dodgeRateModifier.AddItem(item);
     }

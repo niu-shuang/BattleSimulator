@@ -23,6 +23,7 @@ public class Concentration : SkillBase
         ModifyCritRate buff = new ModifyCritRate(critRateUp);
         buff.Init(caster, caster, GameDefine.BuffTickType.Turn, false, continuousTurn);
         caster.AddBuff(buff);
+
         return base.Cast(targetPos, team);
     }
 

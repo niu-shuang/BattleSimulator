@@ -22,7 +22,7 @@ public class Corruption : SkillBase
         var target = GameManager.Instance.GetCharacter(targetPos, team);
         if(target.team != caster.team && target.characterType == GameDefine.CharacterType.Mechanical)
         {
-            ModifyDef buff = new ModifyDef(GameDefine.PERCENTAGE_MAX - defDownRate);
+            ModifyDef buff = new ModifyDef(-defDownRate);
             buff.Init(target, caster, GameDefine.BuffTickType.Turn, false, aliveTime);
             target.AddBuff(buff);
             GameLogger.AddLog($"corrupt {target.name} defDown { defDownRate / 10 }% for { aliveTime } turns");

@@ -7,10 +7,10 @@ public class AttackInfo
 
     public int baseAtk { get; private set; }
     public int finalAtk;
-    public int critRate { get; private set; }
-    public int criteDamage { get; private set; }
+    public int critRate;
+    public int criteDamage;
 
-    public int hitRate { get; private set; }
+    public int hitRate;
 
     public GameDefine.DamageType damageType { get; private set; }
 
@@ -53,7 +53,7 @@ public class AttackInfo
         if(isCrit())
         {
             damageInfo.isCrit = true;
-            damageInfo.damage = criteDamage;
+            damageInfo.damage = criteDamage * caster.critDamageRateModifier.finalValue.Value / GameDefine.PERCENTAGE_MAX;
         }
         damageInfo.SetBeforeDamage(damage =>
         {
@@ -66,6 +66,38 @@ public class AttackInfo
         target.beforeDamageSubject?.OnNext(damageInfo);
         target.Damage(damageInfo);
         caster.afterAttackSubject?.OnNext(this);
+        target.afterDamageSubject?.OnNext(damageInfo);
+    }
+
+    public void DoDamageSilent()
+    {
+        GameLogger.AddLog($"{caster.name}(id : {caster.characterId}) deal {this.finalAtk} atk to {target.name}");
+        DamageInfo damageInfo = new DamageInfo(this);
+
+        if (this.damageType == GameDefine.DamageType.Physical)
+        {
+            if (!isHit())
+            {
+                GameLogger.AddLog($"{target.name}(id : {target.characterId}) dodged");
+                target.afterDamageSubject?.OnNext(damageInfo);
+                return;
+            }
+        }
+        if (isCrit())
+        {
+            damageInfo.isCrit = true;
+            damageInfo.damage = criteDamage * caster.critDamageRateModifier.finalValue.Value / GameDefine.PERCENTAGE_MAX;
+        }
+        damageInfo.SetBeforeDamage(damage =>
+        {
+            if (damage.damageType == GameDefine.DamageType.Physical)
+            {
+                damageInfo.damage = (int)GameDefine.GetAttackFix(damage.damage, damageInfo.target.def.Value);
+            }
+        });
+        damageInfo.InvokeDamageAction();
+        target.beforeDamageSubject?.OnNext(damageInfo);
+        target.Damage(damageInfo);
         target.afterDamageSubject?.OnNext(damageInfo);
     }
 

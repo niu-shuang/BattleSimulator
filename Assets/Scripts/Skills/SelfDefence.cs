@@ -24,7 +24,7 @@ public class SelfDefence : SkillBase
         DamageCut buff1 = new DamageCut(damageCutRate);
         buff1.Init(caster, caster, GameDefine.BuffTickType.Turn, false, continuousTurn);
         caster.AddBuff(buff1);
-        ModifyAtkRate buff2 = new ModifyAtkRate(atkDownRate);
+        ModifyAttackRate buff2 = new ModifyAttackRate(atkDownRate);
         buff2.Init(caster, caster, GameDefine.BuffTickType.Turn, false, continuousTurn);
         caster.AddBuff(buff2);
         return base.Cast(targetPos, team);
