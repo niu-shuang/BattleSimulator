@@ -179,6 +179,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                         .Subscribe(_=>
                         {
                             PrepareForWave(currentWave);
+                            phase.Value = GamePhase.EndTurn;
                         });                   
                 }
                 else
@@ -221,7 +222,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             }));
         }
         grids.AddEnemyWave(enemyTeam);
-        phase.Value = GamePhase.EndTurn;
     }
 
     public void OnPhaseChanged(GamePhase phase)
