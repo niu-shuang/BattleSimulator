@@ -164,7 +164,8 @@ public class CharacterLogic
             else
             {
                 target = GameManager.Instance.GetRandomAttackTarget(team.GetOpposite());
-                Attack(target);
+                if(target != null)
+                    Attack(target);
             }
         }
     }

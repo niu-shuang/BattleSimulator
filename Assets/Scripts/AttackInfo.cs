@@ -104,7 +104,7 @@ public class AttackInfo
     private bool isHit()
     {
         int hitRateRoll = UnityEngine.Random.Range(0, GameDefine.PERCENTAGE_MAX);
-        int missRate = 1000 - caster.hitRateModifier.finalValue.Value;
+        int missRate = GameDefine.PERCENTAGE_MAX - (caster.hitRateModifier.finalValue.Value * hitRate / GameDefine.PERCENTAGE_MAX);
         return hitRateRoll - target.dodgeRate.Value - missRate > 0;
     }
 
