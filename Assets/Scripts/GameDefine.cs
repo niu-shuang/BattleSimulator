@@ -10,7 +10,7 @@ public class GameDefine
 
     public static float GetAttackFix(int atk, int def) => 300 * atk / (atk + 4 * def);
 
-    public static int CARD_GENERATE_NUM = 5;
+    public static int CARD_GENERATE_NUM = 10;
 
     public static int SKILL_CUSTOM_PROPERTY_START_ROW = 7;
     

@@ -65,6 +65,7 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
         }));
         disposable.Add(GameManager.Instance.turnEndSubject.Subscribe(turn =>
         {
+            /*
             foreach (var item in currentDeckTeam1)
             {
                 team1UsedCardPool.Add(item);
@@ -74,7 +75,7 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
             {
                 team2UsedCardPool.Add(item);
             }
-            currentDeckTeam2.Clear();
+            currentDeckTeam2.Clear();*/
         }));
         disposable.Add(team1CardPool.ObserveCountChanged(true).Subscribe(_ => OnCardPoolCountChanged()));
         disposable.Add(team2CardPool.ObserveCountChanged(true).Subscribe(_ => OnCardPoolCountChanged()));
@@ -193,8 +194,9 @@ public class SkillCardManager : SingletonMonoBehaviour<SkillCardManager>
     {
         {
             var allCardNum = team1CardPool.Count + currentDeckTeam1.Count + team1UsedCardPool.Count;
-            var loopTime = GameDefine.CARD_GENERATE_NUM < allCardNum ? GameDefine.CARD_GENERATE_NUM : allCardNum;
-            for (int i = 0; i < loopTime; i++)
+            var diff = GameDefine.CARD_GENERATE_NUM - currentDeckTeam1.Count;
+            //var loopTime = GameDefine.CARD_GENERATE_NUM < allCardNum ? GameDefine.CARD_GENERATE_NUM : allCardNum;
+            for (int i = 0; i < diff; i++)
             {
                 if (team1CardPool.Count == 0)
                 {
