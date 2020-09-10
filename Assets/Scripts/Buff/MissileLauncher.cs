@@ -20,7 +20,7 @@ public class MissileLauncher : BuffBase
 
     protected override void OnBeforeAttack(AttackInfo info)
     {
-        info.criteDamage = critDamage;
+        info.critDamageRate = critDamage;
         info.critRate = critRate;
         info.hitRate = hitRate;
         info.finalAtk = info.finalAtk * atkPercentage / GameDefine.PERCENTAGE_MAX;

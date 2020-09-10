@@ -36,6 +36,7 @@ public class SummonedCharacter : CharacterLogic
 
     private void Die()
     {
+        GameManager.Instance.RemoveSummonCharacter(this);
         disposable.Dispose();
     }
 }

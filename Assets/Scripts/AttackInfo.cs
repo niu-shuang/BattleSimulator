@@ -8,7 +8,7 @@ public class AttackInfo
     public int baseAtk { get; private set; }
     public int finalAtk;
     public int critRate;
-    public int criteDamage;
+    public int critDamageRate;
 
     public int hitRate;
 
@@ -16,7 +16,7 @@ public class AttackInfo
 
     private Action<AttackInfo> onAttack;
 
-    public AttackInfo(CharacterLogic caster, CharacterLogic target, int baseAtk, GameDefine.DamageType damageType, int critRate = 0, int critDamage = 0, int hitRate = 1000)
+    public AttackInfo(CharacterLogic caster, CharacterLogic target, int baseAtk, GameDefine.DamageType damageType, int critRate = 0, int critDamage = 1000, int hitRate = 1000)
     {
         this.caster = caster;
         this.target = target;
@@ -24,7 +24,7 @@ public class AttackInfo
         this.finalAtk = baseAtk;
         this.damageType = damageType;
         this.critRate = critRate;
-        this.criteDamage = critDamage;
+        this.critDamageRate = critDamage;
         this.hitRate = hitRate;
     }
 
@@ -53,7 +53,7 @@ public class AttackInfo
         if(isCrit())
         {
             damageInfo.isCrit = true;
-            damageInfo.damage = criteDamage * caster.critDamageRateModifier.finalValue.Value / GameDefine.PERCENTAGE_MAX;
+            damageInfo.damage = critDamageRate * caster.critDamageRateModifier.finalValue.Value / GameDefine.PERCENTAGE_MAX;
         }
         damageInfo.SetBeforeDamage(damage =>
         {
@@ -86,7 +86,7 @@ public class AttackInfo
         if (isCrit())
         {
             damageInfo.isCrit = true;
-            damageInfo.damage = criteDamage * caster.critDamageRateModifier.finalValue.Value / GameDefine.PERCENTAGE_MAX;
+            damageInfo.damage = critDamageRate * caster.critDamageRateModifier.finalValue.Value / GameDefine.PERCENTAGE_MAX;
         }
         damageInfo.SetBeforeDamage(damage =>
         {

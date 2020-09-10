@@ -80,6 +80,10 @@ public static class CharacterImporter
             team2[wave][new Vector2Int(x, y)] = charaInfo;
         }
         #endregion
+        var initRow = configSheet.GetRow(0);
+        GameDefine.DamageCoefficient1 = initRow.GetCell(7).GetInt();
+        GameDefine.DamageCoefficient2 = initRow.GetCell(9).GetInt();
+
         workbook.Close();
         sheetFS.Close();
         GameManager.Instance.OnImportCharacterSuc(team1, team2);

@@ -8,12 +8,15 @@ public class GameDefine
     public static float[] ATKMap = { 1f, 1f, 1f, 1f };
     //public static float GetDefPercentage(int def) => def * .06f / (def * .06f + 1);
 
-    public static float GetAttackFix(int atk, int def) => 300 * atk / (atk + 4 * def);
+    public static float GetAttackFix(int atk, int def) => DamageCoefficient1 * atk / (atk + DamageCoefficient2 * def);
 
     public static int CARD_GENERATE_NUM = 10;
 
     public static int SKILL_CUSTOM_PROPERTY_START_ROW = 7;
-    
+
+    public static int DamageCoefficient1 = 300;
+    public static int DamageCoefficient2 = 4;
+
     /// <summary>
     /// 千分之单位的100%
     /// </summary>

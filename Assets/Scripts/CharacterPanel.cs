@@ -79,7 +79,6 @@ public class CharacterPanel : MonoBehaviour
         {
             manaText.text = $"Mana: {mana}/{GameManager.Instance.maxMana[(int)character.team].Value}";
         }));
-        SkillCardManager.Instance.ShowDeck(character.team);
 
     }
 

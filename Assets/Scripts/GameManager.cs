@@ -48,6 +48,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public ReactiveProperty<int> team1AliveCount;
     public ReactiveProperty<int> team2AliveCount;
 
+    private Dictionary<Team, List<SummonedCharacter>> summonCharas;
+
     private Dictionary<int, List<CharacterLogic>> enemyList;
     private Dictionary<int, List<SkillBase>> enemySkills;
 
@@ -85,6 +87,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         enemyList = new Dictionary<int, List<CharacterLogic>>();
         enemySkills = new Dictionary<int, List<SkillBase>>();
         disposable = new CompositeDisposable();
+        summonCharas = new Dictionary<Team, List<SummonedCharacter>>()
+        {
+            { Team.Team1, new List<SummonedCharacter>() },
+            { Team.Team2, new List<SummonedCharacter>() }
+        };
         currentWave = 1;
         CharacterImporter.LoadExcel();
         
@@ -255,14 +262,23 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     private async void AutoAttack()
     {
+        var wave = currentWave;
         foreach (var item in team1)
         {
             if (item.isDead.Value != true)
             {
                 item.AutoAttack();
                 await UniTask.Delay(500);
+                if (wave != currentWave) return;
             }
         }
+        foreach (var item in summonCharas[Team.Team1])
+        {
+            item.AutoAttack();
+            await UniTask.Delay(500);
+            if (wave != currentWave) return;
+        }
+
         foreach (var item in team2)
         {
             if(item.isDead.Value != true)
@@ -270,24 +286,33 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 var enemy = item as EnemyBase;
                 enemy.AutoAttack();
                 await UniTask.Delay(500);
+                if (wave != currentWave) return;
             }
+        }
+        foreach (var item in summonCharas[Team.Team2])
+        {
+            item.AutoAttack();
+            await UniTask.Delay(500);
+            if (wave != currentWave) return;
         }
         phase.Value = GamePhase.EndTurn;
     }
 
-    public void AddSummonCharacter(CharacterLogic characterLogic, string icon)
+    public void AddSummonCharacter(SummonedCharacter characterLogic, string icon)
     {
         var existChara = GetCharacter(characterLogic.pos, characterLogic.team);
         if (existChara != null)
         {
             grids.RemoveCharacter(characterLogic.pos, characterLogic.team);
         }
-        if (characterLogic.team == Team.Team1)
-            team1.Add(characterLogic);
-        else
-            team2.Add(characterLogic);
+        summonCharas[characterLogic.team].Add(characterLogic);
         Sprite sprite = Resources.Load<Sprite>($"Icons/{ icon }");
         grids.AddCharacter(characterLogic, sprite, characterLogic.pos);
+    }
+
+    public void RemoveSummonCharacter(SummonedCharacter character)
+    {
+        summonCharas[character.team].Remove(character);
     }
 
     public void RegisterTauntUnit(CharacterLogic unit)
