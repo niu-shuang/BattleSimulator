@@ -26,6 +26,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public int turn { get; private set; }
     public Subject<int> turnEndSubject;
     public Subject<int> turnBeginSubject;
+    public Subject<SkillCastInfo> castSkillSubject;
     public List<Func<UniTask>> endTurnTasks;
     public List<Func<UniTask>> beginTurnTasks;
 
@@ -87,6 +88,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         enemyList = new Dictionary<int, List<CharacterLogic>>();
         enemySkills = new Dictionary<int, List<SkillBase>>();
         disposable = new CompositeDisposable();
+        castSkillSubject = new Subject<SkillCastInfo>();
         summonCharas = new Dictionary<Team, List<SummonedCharacter>>()
         {
             { Team.Team1, new List<SummonedCharacter>() },
@@ -383,6 +385,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                     var isSuc = currentSkill.Cast(pos, team);
                     if (isSuc)
                     {
+                        castSkillSubject.OnNext(new SkillCastInfo(currentSkill, pos, team));
                         skillCardManager.OnUseSkill(currentSkill);
                     }
                     phase.Value = GamePhase.SelectChara;
@@ -407,6 +410,20 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             var chara = GetCharacter(new Vector2Int(col, i), team);
             if (chara != null)
+            {
+                targets.Add(chara);
+            }
+        }
+        return targets;
+    }
+
+    public List<CharacterLogic> GetCharactersInOneRow(int row, Team team)
+    {
+        List<CharacterLogic> targets = new List<CharacterLogic>();
+        for(int i = 0; i < 3; i++)
+        {
+            var chara = GetCharacter(new Vector2Int(i, row), team);
+            if(chara != null)
             {
                 targets.Add(chara);
             }
@@ -481,6 +498,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         else
         {
             currentSkill.Cast(Vector2Int.zero, skill.caster.team);
+            castSkillSubject.OnNext(new SkillCastInfo(currentSkill, Vector2Int.zero, skill.caster.team));
             phase.Value = GamePhase.SelectChara;
             skillCardManager.OnUseSkill(skill);
         }
@@ -502,5 +520,19 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         characterPanel.Dispose();
         disposable.Dispose();
         Debug.Log("GameManager Disposed");
+    }
+}
+
+public struct SkillCastInfo
+{
+    public SkillBase skill;
+    public Vector2Int targetPos;
+    public Team team;
+
+    public SkillCastInfo(SkillBase skill, Vector2Int targetPos, Team team)
+    {
+        this.skill = skill;
+        this.targetPos = targetPos;
+        this.team = team;
     }
 }

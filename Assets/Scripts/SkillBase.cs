@@ -25,7 +25,8 @@ public abstract class SkillBase
         UnSelectableAttack,
         Summon,
         Buff,
-        Heal
+        Heal,
+        Tactics
     }
 
     public string description { get; protected set; }
@@ -69,9 +70,26 @@ public abstract class SkillBase
         return true;
     }
 
+    public virtual void OnAddToDeck()
+    {
+
+    }
+
+    public virtual void OnRemovedFromDeck()
+    {
+
+    }
+
     public void SetCostFree()
     {
         cost = 0;
+    }
+
+    public void ReductCost(int reductionValue)
+    {
+        cost -= reductionValue;
+        if (cost < 0)
+            cost = 0;
     }
 
     public void Reset()

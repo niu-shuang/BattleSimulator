@@ -10,7 +10,9 @@ public class GameDefine
 
     public static float GetAttackFix(int atk, int def) => DamageCoefficient1 * atk / (atk + DamageCoefficient2 * def);
 
-    public static int CARD_GENERATE_NUM = 10;
+    public static int DECK_INIT_NUM = 5;
+    public static int DRAW_CARD_NUM = 3;
+    public static int DECK_MAX_NUM = 10;
 
     public static int SKILL_CUSTOM_PROPERTY_START_ROW = 7;
 
@@ -42,19 +44,31 @@ public class GameDefine
         Magical,
     }
 
-    public static int INIT_MAX_MANA = 6;
+
+    public static int MAX_MANA_LIMIT = 15;
+    public static List<int> MaxManaTable = new List<int>() { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
     public static int MAX_MANA_PER_TURN(int turn)
     {
-        int value = INIT_MAX_MANA + turn - 1;
-        if (value > 15) value = 15;
+        int value = 0;
+        if (MaxManaTable.Count >= turn)
+        {
+            value = MaxManaTable[turn - 1];
+        }
+        else
+            value = MAX_MANA_LIMIT;
+        
         return value;
     }
 
-    public static int INIT_RECOVER_MANA = 3;
+    public static int RECOVER_MANA_LIMIT = 12;
+    public static List<int> RecoverManaTable = new List<int>() { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     public static int RECOVER_MANA_PER_TURN(int turn)
     {
-        int value = INIT_RECOVER_MANA + turn - 1;
-        if (value > 12) value = 12;
+        int value = 0;
+        if (RecoverManaTable.Count >= turn)
+            value = RecoverManaTable[turn - 1];
+        else
+            value = RECOVER_MANA_LIMIT;
         return value;
     }
 }

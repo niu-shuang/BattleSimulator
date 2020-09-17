@@ -80,13 +80,43 @@ public static class CharacterImporter
             team2[wave][new Vector2Int(x, y)] = charaInfo;
         }
         #endregion
-        var initRow = configSheet.GetRow(0);
-        GameDefine.DamageCoefficient1 = initRow.GetCell(7).GetInt();
-        GameDefine.DamageCoefficient2 = initRow.GetCell(9).GetInt();
-
+        var row1 = configSheet.GetRow(0);
+        GameDefine.DamageCoefficient1 = row1.GetCell(7).GetInt();
+        row1 = configSheet.GetRow(1);
+        GameDefine.DamageCoefficient2 = row1.GetCell(7).GetInt();
+        row1 = configSheet.GetRow(2);
+        GameDefine.DECK_INIT_NUM = row1.GetCell(7).GetInt();
+        row1 = configSheet.GetRow(3);
+        GameDefine.DECK_MAX_NUM = row1.GetCell(7).GetInt();
+        row1 = configSheet.GetRow(4);
+        GameDefine.DRAW_CARD_NUM = row1.GetCell(7).GetInt();
+        LoadManaConfig(workbook.GetSheet("ManaConfig"));
         workbook.Close();
         sheetFS.Close();
         GameManager.Instance.OnImportCharacterSuc(team1, team2);
+    }
+
+    private static void LoadManaConfig(ISheet manaConfigSheet)
+    {
+        var maxManaRow = manaConfigSheet.GetRow(1);
+        var recoverManaRow = manaConfigSheet.GetRow(2);
+        GameDefine.MaxManaTable = new List<int>();
+        GameDefine.RecoverManaTable = new List<int>();
+        var index = 1;
+        while(true)
+        {
+            var cell1 = maxManaRow.GetCell(index);
+            if (cell1 == null) break;
+            GameDefine.MaxManaTable.Add(cell1.GetInt());
+            var cell2 = recoverManaRow.GetCell(index);
+            if(cell2 != null)
+            {
+                GameDefine.RecoverManaTable.Add(cell2.GetInt());
+            }
+            index++;
+        }
+        GameDefine.MAX_MANA_LIMIT = manaConfigSheet.GetRow(4).GetCell(1).GetInt();
+        GameDefine.RECOVER_MANA_LIMIT = manaConfigSheet.GetRow(5).GetCell(1).GetInt();
     }
 
     private static void LoadCharacter(ISheet charaSheet, CharacterInfo info)

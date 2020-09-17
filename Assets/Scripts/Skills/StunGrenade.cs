@@ -19,17 +19,18 @@ public class StunGrenade : SkillBase
 
     public override bool Cast(Vector2Int targetPos, Team team)
     {
-        var targets = GameManager.Instance.GetCharactersInOneCol(targetPos.x, team);
-        foreach (var item in targets)
+        var targets = GameManager.Instance.GetCharactersInOneRow(targetPos.y, team);
+        var rand = Random.Range(0, GameDefine.PERCENTAGE_MAX);
+        if (rand <= hitRate)
         {
-            var rand = Random.Range(0, GameDefine.PERCENTAGE_MAX);
-            if(rand <= hitRate)
+            foreach (var item in targets)
             {
                 Stune buff = new Stune();
                 buff.Init(item, caster, GameDefine.BuffTickType.Turn, false, continuousTurn);
                 item.AddBuff(buff);
             }
         }
+        
         return base.Cast(targetPos, team);
     }
 }
