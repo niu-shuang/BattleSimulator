@@ -21,7 +21,7 @@ public class ChargeMana : SkillBase
         int diffValue = GameManager.Instance.maxMana[(int)caster.team].Value - GameManager.Instance.mana[(int)caster.team].Value;
         if (diffValue < recoverMana)
             recoverValue = diffValue;
-        GameManager.Instance.mana[(int)caster.team].Value = GameManager.Instance.maxMana[(int)caster.team].Value + recoverValue;
+        GameManager.Instance.mana[(int)caster.team].Value = GameManager.Instance.mana[(int)caster.team].Value + recoverValue;
         return base.Cast(targetPos, team);
     }
 }
