@@ -17,7 +17,7 @@ public class RegenerateDeck : SkillBase
 
     public override bool Cast(Vector2Int targetPos, Team team)
     {
-        var skills = SkillCardManager.Instance.currentDeckTeam1.Where(i => i != this);
+        var skills = SkillCardManager.Instance.currentDeckTeam1.Where(i => i != this).ToList();
         foreach (var item in skills)
         {
             item.ClearView();

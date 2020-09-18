@@ -156,6 +156,7 @@ public class CharacterLogic
 
     public virtual void AutoAttack()
     {
+        if (isStun) return;
         if (!isAttacked && baseATK > 0)
         {
             var target = GameManager.Instance.GetAttackTarget(team.GetOpposite(), pos.x);

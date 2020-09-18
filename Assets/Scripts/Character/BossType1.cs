@@ -10,6 +10,7 @@ public class BossType1 : EnemyType1
 
     public override void AutoAttack()
     {
+        if (isStun) return;
         var rand = Random.Range(0, skills.Count);
         if (skills[rand] is Attack)
         {

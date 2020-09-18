@@ -28,7 +28,7 @@ public class Regeneration : SkillBase
         var targets = GameManager.Instance.GetCharacters(caster.team);
         foreach (var target in targets)
         {
-            var healInfo = new HealInfo(caster, target, target.Hp.Value * 50 / GameDefine.PERCENTAGE_MAX);
+            var healInfo = new HealInfo(caster, target, target.maxHp.Value * 50 / GameDefine.PERCENTAGE_MAX);
             healInfo.DoHeal();
         }
     }

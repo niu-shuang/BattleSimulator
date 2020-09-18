@@ -1,6 +1,8 @@
-﻿using NPOI.SS.UserModel;
+﻿using Cysharp.Threading.Tasks;
+using NPOI.SS.UserModel;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class DualAttack : SkillBase
@@ -26,8 +28,15 @@ public class DualAttack : SkillBase
 
     public override bool Cast(Vector2Int targetPos, Team team)
     {
-        for(int i = 0; i < 2; i++)
+        DoStrike();
+        return base.Cast(targetPos, team);
+    }
+
+    private async void DoStrike()
+    {
+        for (int i = 0; i < 2; i++)
         {
+
             var target = GameManager.Instance.GetRandomAttackTarget(caster.team.GetOpposite());
             if (target != null)
             {
@@ -37,8 +46,7 @@ public class DualAttack : SkillBase
                 attackInfo.SetOnAttack(info => info.finalAtk = (int)(info.finalAtk * GameDefine.ATKMap[Mathf.Abs(target.pos.x - caster.pos.x)]));
                 attackInfo.DoDamage();
             }
+            await UniTask.Delay(500);
         }
-        
-        return base.Cast(targetPos, team);
     }
 }
